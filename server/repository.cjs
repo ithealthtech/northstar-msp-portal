@@ -436,6 +436,63 @@ class PortalRepository{
     return{id,profileName,databaseProvider,deploymentTarget,publicUrl,options};
   }
 
+  beginIntegrationSync(session,provider='connectwise'){
+    this.assertPermission(session,'integrations.manage');
+    const id=`sync_${randomUUID()}`;const now=new Date().toISOString();
+    this.db.prepare(`INSERT INTO integration_sync_runs(id,provider,status,requested_by_user_id,started_at) VALUES (?,?,'running',?,?)`).run(id,provider,session.user.id,now);
+    this.db.prepare(`UPDATE integration_connections SET sync_state='syncing',updated_at=? WHERE company_id IS NULL AND provider=?`).run(now,provider);
+    return{id,provider,status:'running',startedAt:now};
+  }
+
+  failIntegrationSync(session,runId,error){
+    this.assertPermission(session,'integrations.manage');
+    const status=error?.code==='CONNECTWISE_RATE_LIMITED'?'rate_limited':'failed';const now=new Date().toISOString();
+    this.db.prepare(`UPDATE integration_sync_runs SET status=?,error_code=?,retry_at=?,completed_at=? WHERE id=? AND status='running'`).run(status,String(error?.code||'CONNECTWISE_SYNC_FAILED').slice(0,100),error?.retryAt||null,now,runId);
+    this.db.prepare(`UPDATE integration_connections SET status='degraded',sync_state=?,updated_at=? WHERE company_id IS NULL AND provider='connectwise'`).run(status==='rate_limited'?'warning':'failed',now);
+    return{id:runId,status,errorCode:error?.code||'CONNECTWISE_SYNC_FAILED',retryAt:error?.retryAt||null,completedAt:now};
+  }
+
+  applyConnectWiseSync(session,runId,{companies=[],tickets=[]}){
+    this.assertPermission(session,'integrations.manage');const now=new Date().toISOString();let companiesCreated=0,ticketsUpserted=0,ticketsSkipped=0;
+    const slugFor=(name)=>{const base=(String(name||'connectwise-client').toLowerCase().replace(/[^a-z0-9]+/g,'-').replace(/^-|-$/g,'')||'connectwise-client').slice(0,70);let slug=base,suffix=2;while(this.db.prepare('SELECT 1 FROM companies WHERE slug=?').get(slug))slug=`${base.slice(0,65)}-${suffix++}`;return slug};
+    this.db.exec('BEGIN IMMEDIATE;');
+    try{
+      for(const source of companies){
+        const externalId=String(source.externalId||'').trim();const name=String(source.name||'').trim().slice(0,250);if(!externalId||!name)continue;
+        let mapping=this.db.prepare(`SELECT * FROM integration_resource_mappings WHERE provider='connectwise' AND resource_type='company' AND external_id=?`).get(externalId);
+        let company=mapping?this.db.prepare('SELECT * FROM companies WHERE id=?').get(mapping.company_id):this.db.prepare('SELECT * FROM companies WHERE external_key=?').get(`connectwise:${externalId}`);
+        if(!company){
+          const id=`cmp_${randomUUID()}`;const profile={address:source.address||'',primaryLocation:source.location||'',phone:source.phone||'',website:source.website||'',industry:source.industry||'',employees:0,connectwise:{externalId,lastSeenAt:now}};
+          this.db.prepare(`INSERT INTO companies(id,external_key,slug,name,legal_name,status,plan_name,primary_domain,timezone,settings_json,created_at,updated_at) VALUES (?,?,?,?,?,'onboarding','Unassigned',?,? ,?,?,?)`).run(id,`connectwise:${externalId}`,slugFor(name),name,source.legalName||name,source.primaryDomain||null,source.timezone||'America/New_York',JSON.stringify({profile,configuration:{sourceSystem:'connectwise',clientPortalPublished:false}}),now,now);
+          this.db.prepare(`INSERT INTO company_snapshots(company_id,snapshot_json,captured_at) VALUES (?,?,?)`).run(id,JSON.stringify({source:'connectwise',externalId}),now);
+          if(session.platformRole!=='msp_owner')this.db.prepare(`INSERT OR IGNORE INTO msp_company_scopes(user_id,company_id) VALUES (?,?)`).run(session.user.id,id);
+          company=this.db.prepare('SELECT * FROM companies WHERE id=?').get(id);companiesCreated++;
+        }else{
+          const settings=safeJson(company.settings_json);const profile={...(settings.profile||{}),address:source.address||settings.profile?.address||'',primaryLocation:source.location||settings.profile?.primaryLocation||'',phone:source.phone||settings.profile?.phone||'',website:source.website||settings.profile?.website||'',industry:source.industry||settings.profile?.industry||'',connectwise:{...(settings.profile?.connectwise||{}),externalId,lastSeenAt:now}};
+          this.db.prepare(`UPDATE companies SET name=?,legal_name=?,primary_domain=COALESCE(?,primary_domain),settings_json=?,updated_at=? WHERE id=?`).run(name,source.legalName||name,source.primaryDomain||null,JSON.stringify({...settings,profile}),now,company.id);
+        }
+        this.db.prepare(`INSERT INTO integration_resource_mappings(provider,resource_type,external_id,company_id,last_seen_at) VALUES ('connectwise','company',?,?,?) ON CONFLICT(provider,resource_type,external_id) DO UPDATE SET company_id=excluded.company_id,last_seen_at=excluded.last_seen_at`).run(externalId,company.id,now);
+      }
+      for(const source of tickets){
+        const externalId=String(source.externalId||'').trim();const externalCompanyId=String(source.companyExternalId||'').trim();if(!externalId||!externalCompanyId){ticketsSkipped++;continue}
+        const mapping=this.db.prepare(`SELECT company_id FROM integration_resource_mappings WHERE provider='connectwise' AND resource_type='company' AND external_id=?`).get(externalCompanyId);if(!mapping?.company_id){ticketsSkipped++;continue}
+        const id=`cw_${createHash('sha256').update(externalId).digest('hex').slice(0,24)}`;const payload={ticketId:externalId,statusLabel:source.statusLabel||source.status||'Open',board:source.board||'',updatedBy:'ConnectWise synchronization',vendorUpdatedAt:source.updatedAt||null};
+        this.db.prepare(`INSERT INTO portal_records(id,company_id,record_type,title,status,priority,source_system,source_id,payload_json,visible_to_client,created_at,updated_at) VALUES (?,?,'ticket',?,?,?,?,?,?,1,?,?) ON CONFLICT(id) DO UPDATE SET company_id=excluded.company_id,title=excluded.title,status=excluded.status,priority=excluded.priority,payload_json=excluded.payload_json,updated_at=excluded.updated_at`).run(id,mapping.company_id,source.title||`ConnectWise ticket ${externalId}`,source.status||'active',source.priority||'normal','connectwise',externalId,JSON.stringify(payload),now,now);
+        this.db.prepare(`INSERT INTO integration_resource_mappings(provider,resource_type,external_id,company_id,local_record_id,last_seen_at) VALUES ('connectwise','ticket',?,?,?,?) ON CONFLICT(provider,resource_type,external_id) DO UPDATE SET company_id=excluded.company_id,local_record_id=excluded.local_record_id,last_seen_at=excluded.last_seen_at`).run(externalId,mapping.company_id,id,now);ticketsUpserted++;
+      }
+      const mapped=this.db.prepare(`SELECT DISTINCT company_id FROM integration_resource_mappings WHERE provider='connectwise' AND resource_type='ticket' AND company_id IS NOT NULL`).all();
+      for(const {company_id} of mapped){const open=Number(this.db.prepare(`SELECT COUNT(*) AS count FROM portal_records WHERE company_id=? AND source_system='connectwise' AND record_type='ticket' AND status NOT IN ('resolved','closed','cancelled')`).get(company_id).count);this.db.prepare(`UPDATE company_snapshots SET open_tickets=?,snapshot_json=json_set(snapshot_json,'$.connectwiseLastSync',?),captured_at=? WHERE company_id=?`).run(open,now,now,company_id)}
+      this.db.prepare(`INSERT INTO integration_connections(id,company_id,provider,display_name,status,sync_state,client_visible,configuration_json,last_sync_at,created_at,updated_at) VALUES ('int_connectwise',NULL,'connectwise','ConnectWise PSA','connected','healthy',0,'{}',?,?,?) ON CONFLICT(id) DO UPDATE SET status='connected',sync_state='healthy',last_sync_at=excluded.last_sync_at,updated_at=excluded.updated_at`).run(now,now,now);
+      this.db.prepare(`UPDATE integration_sync_runs SET status='succeeded',companies_seen=?,companies_created=?,tickets_seen=?,tickets_upserted=?,tickets_skipped=?,completed_at=? WHERE id=? AND status='running'`).run(companies.length,companiesCreated,tickets.length,ticketsUpserted,ticketsSkipped,now,runId);
+      this.db.exec('COMMIT;');return{id:runId,status:'succeeded',companiesSeen:companies.length,companiesCreated,ticketsSeen:tickets.length,ticketsUpserted,ticketsSkipped,completedAt:now};
+    }catch(error){this.db.exec('ROLLBACK;');throw error}
+  }
+
+  listIntegrationSyncRuns(session,provider='connectwise',limit=20){
+    this.assertPermission(session,'integrations.read');const safeLimit=Math.max(1,Math.min(Number(limit)||20,100));
+    return this.db.prepare(`SELECT * FROM integration_sync_runs WHERE provider=? ORDER BY started_at DESC LIMIT ?`).all(provider,safeLimit).map(row=>({id:row.id,provider:row.provider,status:row.status,companiesSeen:row.companies_seen,companiesCreated:row.companies_created,ticketsSeen:row.tickets_seen,ticketsUpserted:row.tickets_upserted,ticketsSkipped:row.tickets_skipped,errorCode:row.error_code,retryAt:row.retry_at,startedAt:row.started_at,completedAt:row.completed_at}));
+  }
+
   recordAudit(event){
     const metadata=redactMetadata(event.metadata);
     this.db.prepare(`INSERT INTO audit_events(request_id,company_id,actor_user_id,actor_email,actor_role,action,resource_type,resource_id,outcome,reason_code,ip_address,user_agent,metadata_json) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?)`).run(event.requestId,event.companyId||null,event.actorUserId||null,event.actorEmail||null,event.actorRole||null,event.action,event.resourceType||'request',event.resourceId||null,event.outcome,event.reasonCode||null,event.ipAddress||null,String(event.userAgent||'').slice(0,500),JSON.stringify(metadata));

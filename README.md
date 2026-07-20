@@ -8,6 +8,8 @@ Northstar is a unified MSP portal with three isolated experiences:
 - Client administration
 - Internal MSP portfolio and operations management
 
+![Northstar MSP Portal secure workspace](docs/assets/northstar-msp-dashboard.png)
+
 The visual portal remains a working prototype, but the project now includes a real multi-tenant server foundation with persistent data, server-resolved memberships, portfolio scoping, entitlements, protected APIs, and durable audit events.
 
 ## Architecture
@@ -166,4 +168,14 @@ The included Node SQLite data store makes the foundation immediately runnable an
 
 ## Current boundary
 
-The shell, authentication bootstrap, tenant context, entitlements, company APIs, summaries, durable people invitations and membership updates, personal profiles, integrations metadata, portal records, document-update approvals, install profile, tenant-isolated settings, and audit storage now have a real backend foundation. Some detailed dashboards and external connector actions are still seeded or prototype-local. The next vertical slice should replace one complete external workflow - recommended: ConnectWise companies and service tickets - from synchronization through API to UI.
+The shell, authentication bootstrap, tenant context, entitlements, company APIs, summaries, durable people invitations and membership updates, personal profiles, integrations metadata, portal records, document-update approvals, install profile, tenant-isolated settings, audit storage, and ConnectWise company/ticket synchronization now have a real backend foundation. Production navigation release-gates unfinished modules; explicit demo mode retains design prototypes without representing them as operational.
+
+## ConnectWise Platform synchronization
+
+Northstar uses ConnectWise Platform OAuth 2.0 client credentials with the least-privilege `platform.companies.read` and `platform.tickets.read` scopes. The server sends the documented JSON token request, caches the access token until expiry, honors vendor quota headers, records rate-limited and failed runs, blocks cross-origin pagination, and never returns the client secret or bearer token to the browser.
+
+Configure `CONNECTWISE_CLIENT_ID` and `CONNECTWISE_CLIENT_SECRET` together. Select the regional `CONNECTWISE_BASE_URL` listed in `.env.example`; production rejects non-ConnectWise origins. The default collection paths can be overridden only through server environment configuration if the approved tenant documentation specifies different paths.
+
+MSP administrators can inspect or start synchronization through `GET` and `POST /api/internal/integrations/connectwise/sync`. Imported companies begin in onboarding state and are not automatically published to clients. Tickets are mapped through durable provider identifiers and idempotently upserted into company-scoped portal records.
+
+ConnectWise is a trademark of ConnectWise, LLC. This application uses the ConnectWise API but is not endorsed or certified by ConnectWise.

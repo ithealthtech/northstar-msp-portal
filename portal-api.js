@@ -67,8 +67,10 @@
   }
   async function listIntegrations(companyId=null){const qs=companyId?`?companyId=${encodeURIComponent(companyId)}`:'';return request(`/api/internal/integrations${qs}`)}
   async function saveIntegration(integration){return request('/api/internal/integrations',{method:'PUT',headers:{'Content-Type':'application/json'},body:JSON.stringify(integration)})}
+  async function connectWiseSyncStatus(){return request('/api/internal/integrations/connectwise/sync')}
+  async function runConnectWiseSync(){return request('/api/internal/integrations/connectwise/sync',{method:'POST'})}
   async function listApiKeys(){return request('/api/internal/api-keys')}
   async function createApiKey(apiKey){return request('/api/internal/api-keys',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(apiKey)})}
   async function revokeApiKey(keyId){return request(`/api/internal/api-keys/${encodeURIComponent(keyId)}`,{method:'DELETE'})}
-  window.NorthstarApi={request,profile,updateProfile,listCompanies,company,createCompany,updateCompany,listRecords,createRecord,updateRecord,listApprovals,createApproval,decideApproval,listPeople,invitePerson,updatePerson,listAudit,listSettings,saveSetting,installProfile,saveInstallProfile,listIntegrations,saveIntegration,listApiKeys,createApiKey,revokeApiKey};
+  window.NorthstarApi={request,profile,updateProfile,listCompanies,company,createCompany,updateCompany,listRecords,createRecord,updateRecord,listApprovals,createApproval,decideApproval,listPeople,invitePerson,updatePerson,listAudit,listSettings,saveSetting,installProfile,saveInstallProfile,listIntegrations,saveIntegration,connectWiseSyncStatus,runConnectWiseSync,listApiKeys,createApiKey,revokeApiKey};
 })();
