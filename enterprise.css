@@ -341,6 +341,287 @@ body.signature-surface :focus-visible {
 .signature-surface .login-view { background: linear-gradient(125deg, #081426, #153b62); }
 .signature-surface .login-box { padding: 42px; border-radius: 24px; box-shadow: var(--enterprise-shadow-raised); }
 
+/* Enterprise light theme */
+body.portal-surface,
+body.admin-surface,
+body.setup-surface,
+body.signature-surface {
+  background:
+    radial-gradient(circle at 8% 0, rgba(37, 99, 235, .07), transparent 28%),
+    linear-gradient(180deg, #f8faff 0%, #f3f6fb 100%);
+}
+
+.portal-surface .sidebar {
+  color: #40516a;
+  background:
+    radial-gradient(circle at 14% 0, rgba(37, 99, 235, .10), transparent 30%),
+    linear-gradient(180deg, #ffffff 0%, #f8faff 68%, #f2f6fb 100%);
+  border-right: 1px solid #dfe7f1;
+  box-shadow: 12px 0 34px rgba(40, 64, 96, .06);
+}
+.portal-surface .brand strong { color: #10213a; }
+.portal-surface .brand span { color: #718198; }
+.portal-surface .company-card {
+  border-color: #dce6f2;
+  background: rgba(244, 248, 253, .92);
+  box-shadow: inset 0 1px 0 #fff, 0 8px 24px rgba(44, 72, 110, .04);
+}
+.portal-surface .company-avatar {
+  color: #1d4ed8;
+  background: #e8f0ff;
+  border-color: #cfe0ff;
+}
+.portal-surface .company-card strong { color: #1b2b43; }
+.portal-surface .company-card span { color: #738299; }
+.portal-surface .company-card button { color: #64748b; }
+.portal-surface .nav-label,
+.portal-surface .nav-section-toggle { color: #8190a5; }
+.portal-surface .nav-button { color: #52647a; }
+.portal-surface .nav-button:hover {
+  color: #17355d;
+  background: #edf4ff;
+}
+.portal-surface .nav-button.active {
+  color: #174ea6;
+  background: linear-gradient(90deg, #e7f0ff, #edf9f7);
+  box-shadow: inset 0 0 0 1px #d5e5fb, 0 7px 18px rgba(37, 99, 235, .06);
+}
+.portal-surface .nav-button.active::before { background: #2563eb; }
+.portal-surface .nav-button > span {
+  color: #5f7188;
+  background: #edf2f8;
+  border: 1px solid #e0e8f1;
+}
+.portal-surface .nav-button.active > span {
+  color: #1d4ed8;
+  background: #dce9ff;
+  border-color: #cbdcff;
+}
+.portal-surface .nav-button em { color: #5d6e84; background: #e8eef6; }
+.portal-surface .support-card {
+  border-color: #cfe0f7;
+  background: linear-gradient(145deg, #edf4ff, #edf9f7);
+}
+.portal-surface .support-card > span { color: #1e5aa8; background: #dceaff; }
+.portal-surface .support-card strong { color: #193556; }
+.portal-surface .support-card small { color: #66778e; }
+.portal-surface .support-card button { color: #1d5ca8; }
+.portal-surface main { background: linear-gradient(180deg, #fbfcff 0, #f4f7fb 360px); }
+
+.portal-surface #loginScreen {
+  color: #16243a;
+  background:
+    radial-gradient(circle at 18% 16%, rgba(37, 99, 235, .15), transparent 38%),
+    radial-gradient(circle at 72% 82%, rgba(20, 184, 166, .10), transparent 34%),
+    linear-gradient(135deg, #f8fbff, #edf3fb);
+}
+.portal-surface #loginScreen::before {
+  color: #10213a;
+  text-shadow: 0 18px 60px rgba(37, 64, 104, .10);
+}
+.portal-surface #loginScreen::after { color: #64758d; }
+.portal-surface #loginScreen .login-brand strong { color: #10213a; }
+.portal-surface #loginScreen .login-brand span { color: #6f8097; }
+.portal-surface #loginScreen .login-card {
+  border-color: rgba(205, 218, 233, .92);
+  box-shadow: 0 28px 80px rgba(38, 61, 94, .14);
+}
+.portal-surface #loginScreen .trust { color: #6b7d94; }
+.portal-surface #setupScreen {
+  background:
+    radial-gradient(circle at 20% 10%, rgba(37, 99, 235, .14), transparent 34%),
+    linear-gradient(145deg, #f8fbff, #edf3f9);
+}
+
+/* MSP management uses a role-scoped visual layer; keep it light as well. */
+html[data-portal-role="msp"] body.portal-surface {
+  color: #1a2c44;
+  background:
+    radial-gradient(circle at 72% -10%, rgba(37, 99, 235, .08), transparent 38%),
+    #f4f7fb;
+}
+html[data-portal-role="msp"] .portal-surface .sidebar {
+  background:
+    radial-gradient(circle at 14% 0, rgba(37, 99, 235, .10), transparent 30%),
+    linear-gradient(180deg, #fff, #f5f8fc);
+  border-right-color: #dfe7f1;
+}
+html[data-portal-role="msp"] .portal-surface .brand strong { color: #142b49; }
+html[data-portal-role="msp"] .portal-surface .brand span { color: #73849a; }
+html[data-portal-role="msp"] .portal-surface .ops-brand-mark {
+  border-color: #b9d7f6;
+  background: #eaf3ff;
+  box-shadow: 0 10px 28px rgba(37, 99, 235, .08);
+}
+html[data-portal-role="msp"] .portal-surface .ops-brand-mark i { background: #2563eb; }
+html[data-portal-role="msp"] .portal-surface .company-card { background: #f3f7fc; border-color: #dbe5f0; }
+html[data-portal-role="msp"] .portal-surface .company-avatar { color: #1d4ed8; background: #e3edff; border-color: #cbdcff; }
+html[data-portal-role="msp"] .portal-surface .nav-button { color: #53667d; }
+html[data-portal-role="msp"] .portal-surface .nav-button:hover { color: #17436f; background: #edf4ff; }
+html[data-portal-role="msp"] .portal-surface .nav-button.active {
+  color: #174ea6;
+  background: linear-gradient(90deg, #e2edff, #edf9f7);
+  box-shadow: inset 3px 0 #2563eb, 0 7px 18px rgba(37, 99, 235, .06);
+}
+html[data-portal-role="msp"] .portal-surface .nav-label { color: #8190a5; }
+html[data-portal-role="msp"] .portal-surface main {
+  background: linear-gradient(180deg, #fbfcff, #f4f7fb 360px);
+}
+html[data-portal-role="msp"] .portal-surface .topbar {
+  background: rgba(255, 255, 255, .90);
+  border-color: #dce5ef;
+  box-shadow: 0 8px 28px rgba(35, 58, 91, .05);
+}
+html[data-portal-role="msp"] .portal-surface .search { color: #718198; background: #f7f9fc; border-color: #dce5ef; }
+html[data-portal-role="msp"] .portal-surface .search input { color: #1a2c44; }
+html[data-portal-role="msp"] .portal-surface .search kbd { color: #68788e; background: #fff; border-color: #d7e1ec; }
+html[data-portal-role="msp"] .portal-surface .notice,
+html[data-portal-role="msp"] .portal-surface .profile-button { color: #64758b; }
+html[data-portal-role="msp"] .portal-surface .notice { background: #fff; border-color: #dce5ef; }
+html[data-portal-role="msp"] .portal-surface .profile-button strong { color: #172b45; }
+html[data-portal-role="msp"] .portal-surface .avatar { color: #1d4ed8; background: #e6efff; border-color: #ccdcf8; }
+html[data-portal-role="msp"] .portal-surface .page-head h1,
+html[data-portal-role="msp"] .portal-surface h2,
+html[data-portal-role="msp"] .portal-surface h3 { color: #132a47; }
+html[data-portal-role="msp"] .portal-surface .page-head p { color: #66788e; }
+html[data-portal-role="msp"] .portal-surface .eyebrow { color: #2563eb; }
+html[data-portal-role="msp"] .portal-surface .card {
+  color: #1a2c44;
+  background: #fff;
+  border-color: #dfe7f1;
+  box-shadow: var(--enterprise-shadow);
+  backdrop-filter: none;
+}
+html[data-portal-role="msp"] .portal-surface .stat { background: linear-gradient(145deg, #fff, #f7faff); }
+html[data-portal-role="msp"] .portal-surface .stat-icon { color: #2563eb; background: #eaf2ff; border-color: #d7e5ff; }
+html[data-portal-role="msp"] .portal-surface .stat-label { color: #687a90; }
+html[data-portal-role="msp"] .portal-surface .stat-value { color: #10213a; }
+html[data-portal-role="msp"] .portal-surface .stat-foot { color: #718198; }
+html[data-portal-role="msp"] .portal-surface .card-head,
+html[data-portal-role="msp"] .portal-surface .list-row,
+html[data-portal-role="msp"] .portal-surface .info-row,
+html[data-portal-role="msp"] .portal-surface td { border-color: #e8eef5; }
+html[data-portal-role="msp"] .portal-surface .card-head p { color: #718198; }
+html[data-portal-role="msp"] .portal-surface .row-icon { color: #1d5ca8; background: #edf4ff; }
+html[data-portal-role="msp"] .portal-surface .row-copy strong,
+html[data-portal-role="msp"] .portal-surface .row-meta strong,
+html[data-portal-role="msp"] .portal-surface td strong { color: #1b2d45; }
+html[data-portal-role="msp"] .portal-surface .row-copy span,
+html[data-portal-role="msp"] .portal-surface .row-meta span,
+html[data-portal-role="msp"] .portal-surface .info-row span { color: #6f8096; }
+html[data-portal-role="msp"] .portal-surface .toolbar { border-color: #e1e9f2; background: #f9fbfd; }
+html[data-portal-role="msp"] .portal-surface .filter,
+html[data-portal-role="msp"] .portal-surface .btn.secondary { color: #4d6077; background: #fff; border-color: #d8e2ed; }
+html[data-portal-role="msp"] .portal-surface .filter.active,
+html[data-portal-role="msp"] .portal-surface .btn.primary { color: #fff; background: linear-gradient(135deg, #1d4ed8, #2563eb); border-color: #2563eb; }
+html[data-portal-role="msp"] .portal-surface .btn.text { color: #1d5ca8; }
+html[data-portal-role="msp"] .portal-surface th { color: #718198; background: #f7f9fc; border-color: #e2eaf3; }
+html[data-portal-role="msp"] .portal-surface td { color: #4d6077; }
+html[data-portal-role="msp"] .portal-surface .management-callout {
+  color: #173252;
+  background: linear-gradient(145deg, #eaf3ff, #e8f7f5);
+  border: 1px solid #cfe0f5;
+}
+html[data-portal-role="msp"] .portal-surface .management-callout p { color: #5c7189; }
+html[data-portal-role="msp"] .portal-surface .trend { border-color: #dfe7f1; }
+html[data-portal-role="msp"] .portal-surface .trend-bar { background: #d8e8f6; }
+html[data-portal-role="msp"] .portal-surface .trend-bar.active { background: #2563eb; }
+html[data-portal-role="msp"] .portal-surface .progress-track { background: #e5ecf4; }
+html[data-portal-role="msp"] .portal-surface .progress-fill { background: #14a99b; }
+html[data-portal-role="msp"] .portal-surface .client-logo { color: #1d5ca8; background: #eaf3ff; border-color: #d5e5f8; }
+html[data-portal-role="msp"] .portal-surface .admin-banner { color: #795715; background: #fff7e6; border-color: #efd79f; }
+html[data-portal-role="msp"] .portal-surface .ops-live { color: #087a5b; background: #effaf5; border-color: #bfe7d6; }
+html[data-portal-role="msp"] .portal-surface .ops-kicker { color: #718198 !important; }
+html[data-portal-role="msp"] .portal-surface .ops-health-ring { color: #087a5b; background: #eaf8f2; border-color: #c9eadc; }
+html[data-portal-role="msp"] .portal-surface .ops-health p { color: #6f8096; }
+html[data-portal-role="msp"] .portal-surface .ops-search { color: #718198; background: #f8fafc; border-color: #dce5ef; }
+html[data-portal-role="msp"] .portal-surface .ops-search input { color: #1a2c44; }
+html[data-portal-role="msp"] .portal-surface .ops-field-list > button { color: #4d6077; border-color: #e7edf4; }
+html[data-portal-role="msp"] .portal-surface .ops-field-list > button:hover { background: #f1f7ff; }
+html[data-portal-role="msp"] .portal-surface .ops-field-list code { color: #176b78; }
+html[data-portal-role="msp"] .portal-surface .ops-field-list small { color: #718198; }
+html[data-portal-role="msp"] .portal-surface .ops-field-list b { color: #5d7188; }
+html[data-portal-role="msp"] .portal-surface .ops-field-group { color: #496a80; background: #e9f1f7; }
+html[data-portal-role="msp"] .portal-surface .ops-template > p { color: #6f8096; }
+html[data-portal-role="msp"] .portal-surface .ops-template textarea { color: #1a2c44; background: #f8fafc; border-color: #d8e2ed; }
+html[data-portal-role="msp"] .portal-surface .ops-preview { background: #edf8f7; border-left-color: #14a99b; }
+html[data-portal-role="msp"] .portal-surface .ops-preview span { color: #55758a; }
+html[data-portal-role="msp"] .portal-surface .ops-preview p { color: #304a63; }
+
+.admin-surface .topbar,
+.signature-surface .app-header {
+  color: #20344f;
+  background: rgba(255, 255, 255, .94);
+  border-bottom: 1px solid #dce5ef;
+  box-shadow: 0 8px 28px rgba(35, 58, 91, .07);
+  backdrop-filter: blur(16px) saturate(1.15);
+}
+.admin-surface .brand,
+.admin-surface .topbar a,
+.admin-surface .topbar button { color: #20344f; }
+.admin-surface .topbar button { border-color: #d5dfeb; background: #f8faff; }
+.admin-surface .admin-nav {
+  color: #40516a;
+  background: #fff;
+  border: 1px solid #dfe7f1;
+  box-shadow: var(--enterprise-shadow);
+}
+.admin-surface .admin-nav strong { color: #142b49; }
+.admin-surface .admin-nav a { color: #56677d; }
+.admin-surface .admin-nav a.active,
+.admin-surface .admin-nav a:hover {
+  color: #174ea6;
+  background: linear-gradient(90deg, #e7f0ff, #eff9f7);
+}
+
+.signature-surface .brand-mark { color: #20344f; }
+.signature-surface .brand-mark small { color: #718198; }
+.signature-surface .header-icon,
+.signature-surface .profile-menu-toggle { color: #354a65; }
+.signature-surface .header-icon:hover,
+.signature-surface .profile-menu-toggle:hover,
+.signature-surface .profile-menu-toggle[aria-expanded=true] { color: #174ea6; background: #edf4ff; }
+.signature-surface #headerAvatar { color: #1d4ed8; background: #e6efff; }
+.signature-surface .bell-dot { color: #fff; background: #2563eb; }
+.signature-surface .signature-app {
+  background:
+    radial-gradient(circle at 10% 0, rgba(37, 99, 235, .06), transparent 26%),
+    #f4f7fb;
+}
+.signature-surface .login-view {
+  background:
+    radial-gradient(circle at 78% 12%, rgba(37, 99, 235, .16), transparent 30%),
+    radial-gradient(circle at 20% 86%, rgba(20, 184, 166, .10), transparent 34%),
+    linear-gradient(135deg, #f9fbff, #edf3fa);
+}
+.signature-surface .login-box {
+  border-color: #d8e2ee;
+  box-shadow: 0 30px 90px rgba(35, 58, 91, .16);
+}
+.signature-surface .account-card-head {
+  color: #20344f;
+  background: linear-gradient(145deg, #eef4fc, #e8f2f7);
+}
+.signature-surface .account-card-head strong,
+.signature-surface .account-card-head small { color: #20344f; }
+.signature-surface .account-avatar { color: #1d4ed8; background: #fff; border: 1px solid #d7e3f0; }
+.signature-surface .account-side {
+  color: #40516a;
+  background: linear-gradient(180deg, #f8faff, #eef3f8);
+  border-right-color: #dce5ef;
+}
+.signature-surface .account-side strong { color: #142b49; }
+.signature-surface .account-side small { color: #718198; }
+.signature-surface .account-side button { color: #52647a; }
+.signature-surface .account-side button:hover { color: #174ea6; background: #e8f1ff; border-color: #d5e4fb; }
+.signature-surface .account-side button.active {
+  color: #174ea6;
+  background: #e2edff;
+  border-color: #cddfff;
+  box-shadow: 0 8px 22px rgba(37, 99, 235, .10);
+}
+.signature-surface .profile-backdrop { background: rgba(43, 61, 84, .28); }
+
 @media (max-width: 1100px) {
   .portal-surface .app-shell { grid-template-columns: 238px minmax(0, 1fr); }
   .portal-surface .content { padding: 30px 26px 54px; }
