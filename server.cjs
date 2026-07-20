@@ -8,6 +8,7 @@ const {createEntraAuthenticator}=require('./server/auth.cjs');
 const {createPortalHandler}=require('./server/app.cjs');
 const {ConnectWiseClient}=require('./server/connectwise-client.cjs');
 const {ConnectWiseSyncService}=require('./server/connectwise-sync.cjs');
+const {acquireDatabaseLease}=require('./server/operations.cjs');
 
 function createApplication(options={}){
   const config=options.config||loadConfig(options.env);
@@ -23,13 +24,15 @@ function createApplication(options={}){
 }
 
 function startServer(options={}){
-  const application=createApplication(options);
+  const config=options.config||loadConfig(options.env);const releaseLease=options.skipDatabaseLease?()=>{}:acquireDatabaseLease(config.databasePath);let application;
+  try{application=createApplication({...options,config})}catch(error){releaseLease();throw error}
   const server=http.createServer(application.handler);
+  server.once('error',()=>{application.db.close();releaseLease()});
   server.listen(application.config.port,application.config.host,()=>console.log(`Northstar MSP Portal: http://${application.config.host}:${application.config.port}`));
-  function shutdown(signal){console.log(`${signal} received; closing portal server.`);server.close(()=>{application.db.close();process.exit(0)})}
+  function shutdown(signal){console.log(`${signal} received; closing portal server.`);server.close(()=>{application.db.close();releaseLease();process.exit(0)})}
   process.once('SIGINT',()=>shutdown('SIGINT'));
   process.once('SIGTERM',()=>shutdown('SIGTERM'));
-  return{...application,server};
+  return{...application,server,releaseLease};
 }
 
 if(require.main===module)startServer();

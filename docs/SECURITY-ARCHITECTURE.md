@@ -20,11 +20,15 @@ Demo identities, demo seed data, signature-only mode, and default-administrator 
 
 ConnectWise credentials are server-only environment secrets. OAuth access tokens are cached in process memory until expiry and are never persisted or returned through portal APIs. Synchronization requires the MSP integration-management permission, creates durable provider mappings, imports companies as unpublished onboarding records, copies only an allowlisted subset of company and ticket fields, and records every run without credential material. Vendor pagination cannot leave the configured ConnectWise origin, and quota exhaustion produces a durable rate-limited state with a retry timestamp.
 
+Database backups use SQLite's online backup mechanism and AES-256-GCM authenticated encryption with a separately managed 32-byte key. Restore validates the authentication tag, SHA-256 checksum, SQLite integrity, and migration ledger before replacement, refuses to run while the server holds the database lease, and preserves the displaced database for controlled rollback. Operational records contain filenames, checksums, counts, and timestamps—not encryption keys, credentials, absolute paths, or record payloads.
+
+Retention is an explicit server-side transaction. It covers expired sessions and API credentials, integration execution history, and audit records beyond the configured policy boundary. Business records are not silently purged. Production enforces at least one year of audit retention; the default is seven years. Policy execution and deletion counts are themselves auditable.
+
 ## Production gates
 
 - Terminate TLS at a maintained reverse proxy and set the canonical public URL.
 - Store secrets in a managed secret store, not `.env.local`, where the hosting environment supports it.
-- Back up and restore-test the production database.
-- Add centralized security monitoring, retention policies, and incident response ownership.
+- Replicate encrypted backups to immutable off-site storage and complete monthly restore tests.
+- Forward structured operational output to centralized security monitoring and assign incident-response ownership.
 - Complete privacy, contractual, and data-residency review for every connected vendor.
 - Sign and provenance-stamp release artifacts where packaged distribution is used.

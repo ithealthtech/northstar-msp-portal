@@ -1,11 +1,13 @@
-# Email Signature Designer deployment
+# Northstar MSP Portal deployment
 
 This package is designed to run as a web-based MSP portal with a Node.js server, SQLite by default, and a migration path for PostgreSQL or SQL Server.
+
+Node.js 24 or later is required. Deployment hosts and build agents must use the same major runtime because the supported encrypted backup path depends on the Node 24 `node:sqlite` backup API.
 
 ## Deployment profiles
 
 - Local evaluation: Node.js + SQLite database in `data/northstar.db`.
-- Windows service: copy the release package to `C:\Program Files\Email Signature Designer`, configure `.env.local`, then run through NSSM, PM2, or Windows Service Wrapper.
+- Windows service: copy the release package to `C:\Program Files\Northstar MSP Portal`, configure `.env.local`, then run through a managed Windows service wrapper.
 - IIS reverse proxy: run the Node server on `127.0.0.1`, terminate TLS in IIS, and proxy to the configured port.
 - Docker or hosted Linux VM: use the same server entrypoint and mount `data/` as persistent storage.
 
@@ -45,7 +47,7 @@ The application data model now includes:
 5. Run `npm run build`.
 6. Run `npm run smoke`.
 7. Run `npm run package:install`.
-8. Copy `release/email-signature-designer` to the server.
+8. Copy the generated Northstar release package to the server.
 9. On the server, run `npm install --omit=dev`.
 10. Run `npm run db:init`.
 11. Start with `npm start` or configure a service wrapper.
@@ -139,13 +141,17 @@ The database role still controls actual access. Entra roles are a ceiling; they 
 
 SQLite is the included operational database for local evaluation and single-node pilots. It creates the parent `data/` directory automatically and uses WAL mode for file-backed databases.
 
-Minimum production practices:
+Required production practices:
 
 - Put `DATABASE_PATH` on persistent storage.
-- Back up the database file and WAL/shm sidecars together while the app is stopped, or use a SQLite-safe online backup tool.
-- Run monthly restore tests.
-- Keep audit data according to the MSP retention policy.
+- Configure a separately vaulted 32-byte `NORTHSTAR_BACKUP_KEY`.
+- Schedule `npm run backup:create` and replicate the encrypted result to immutable off-site storage.
+- Run `npm run db:retention` daily.
+- Run `npm run backup:verify -- <backup-file>` after transfer and a full isolated restore test monthly.
+- Keep audit data according to the MSP retention policy; production rejects audit retention shorter than one year.
 - Do not put database files under the web root.
+
+See [docs/OPERATIONS-RUNBOOK.md](docs/OPERATIONS-RUNBOOK.md) for key custody, RPO/RTO targets, exact restore steps, alerts, evidence, and incident procedures.
 
 For multi-instance hosting, migrate the repository contracts to PostgreSQL or SQL Server before scaling horizontally.
 
@@ -186,6 +192,8 @@ After the app is reachable:
 - Store secrets outside the repo.
 - Put the app behind HTTPS.
 - Back up the database.
+- Replicate encrypted backups off-site and complete a restore drill.
+- Schedule and review retention execution.
 - Enable log forwarding.
 - Test `/api/health`.
 - Provision MSP owner and at least one client admin.

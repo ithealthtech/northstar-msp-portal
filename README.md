@@ -32,6 +32,8 @@ server/app.cjs               Default-deny, tenant-scoped HTTP API and static por
 
 Core records include companies, users, client memberships, MSP client assignments, feature entitlements, operational snapshots, integration metadata, and append-only application audit events.
 
+Production operations include authenticated encrypted SQLite backups, integrity verification, offline-safe restore controls, configurable retention enforcement, database process leases, and health timestamps. See the [operations runbook](docs/OPERATIONS-RUNBOOK.md).
+
 ## Security model
 
 Microsoft Entra establishes identity and supplies a coarse application-role ceiling. It does **not** grant company access by itself.
@@ -54,7 +56,7 @@ When the portal is served from `127.0.0.1` with local demo mode enabled, the rol
 
 ## Local development
 
-Node.js 22.13 or later is required.
+Node.js 24 or later is required. Northstar's encrypted online backup uses the `node:sqlite` backup API included in that runtime baseline.
 
 ```powershell
 npm install

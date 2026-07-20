@@ -7,12 +7,15 @@
 data/
 logs/
 uploads/
+backups/
+*.nsbak
 *.db
 *.db-*
 *.sqlite
 *.sqlite3
 *.log
 *.pid
+*.running.json
 *.dmp
 
 # Dependencies and generated output

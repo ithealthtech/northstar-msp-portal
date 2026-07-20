@@ -11,6 +11,7 @@ fs.mkdirSync(outDir,{recursive:true});
 for(const file of ['server.cjs','package.json','package-lock.json','.env.example','README.md','DEPLOYMENT.md'])copyFile(path.join(root,file),path.join(outDir,file));
 copyDir(path.join(root,'server'),path.join(outDir,'server'));
 copyDir(path.join(root,'scripts'),path.join(outDir,'scripts'));
+copyDir(path.join(root,'docs'),path.join(outDir,'docs'));
 copyDir(path.join(root,'dist'),path.join(outDir,'dist'));
 fs.writeFileSync(path.join(outDir,'install-windows.ps1'),`param([string]$InstallPath = "$env:ProgramFiles\\\\Northstar MSP Portal")
 New-Item -ItemType Directory -Force -Path $InstallPath | Out-Null
