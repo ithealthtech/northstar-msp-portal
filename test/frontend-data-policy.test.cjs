@@ -49,4 +49,9 @@ test('production source gates hardcoded portfolio and operational state behind d
   assert.match(app,/revenue:revenueLive/);
   assert.match(app,/integrations:integrationsLive/);
   assert.match(app,/Historical trend<\/span><strong>Not yet collected/);
+  assert.match(app,/const productionViews=/);
+  assert.match(app,/msp:new Set\(\['management','mspCompany','clients','revenue','mspSettings','systemSetup','integrations','audit'\]\)/);
+  assert.match(app,/mspSettings:demoBackend\?mspSettings:mspSettingsLive/);
+  assert.doesNotMatch(app,/productionViews[\s\S]{0,500}connectorOverview/);
+  assert.doesNotMatch(app,/productionViews[\s\S]{0,500}passwords/);
 });
