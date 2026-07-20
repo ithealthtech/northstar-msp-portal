@@ -52,6 +52,14 @@ The application data model now includes:
 
 ## Environment configuration
 
+### ConnectWise Platform
+
+Set both `CONNECTWISE_CLIENT_ID` and `CONNECTWISE_CLIENT_SECRET` in the production secret store. Do not place either value in portal settings, source control, installer arguments, browser configuration, or logs. Grant only `platform.companies.read` and `platform.tickets.read` unless a separately reviewed workflow requires additional access.
+
+Choose the documented regional API origin with `CONNECTWISE_BASE_URL`. North American production defaults to `https://openapi.service.itsupport247.net`; EU and AU origins are listed in `.env.example`. Production startup rejects custom origins. Schedule synchronization below the documented 500-request, five-minute quota and alert on `rate_limited` or `failed` run states.
+
+After configuration, call `GET /api/internal/integrations/connectwise/sync` as an MSP administrator to confirm `configured: true`, then run a controlled first `POST` and review imported onboarding companies, ticket mappings, audit events, skipped-ticket counts, and the integration sync history before enabling a schedule.
+
 Create `.env.local` beside `server.cjs` in the installed package.
 
 ## Signature portal production mode

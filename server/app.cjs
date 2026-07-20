@@ -22,7 +22,7 @@ function readJsonBody(req,{limit=1048576}={}){
   });
 }
 
-function createPortalHandler({config,repository,authenticate}){
+function createPortalHandler({config,repository,authenticate,connectWiseSync=null}){
   const root=fs.existsSync(path.join(config.staticRoot,'index.html'))?config.staticRoot:config.sourceRoot;
   const sourceMode=root===config.sourceRoot;
   const sourcePublicFiles=new Set(['index.html','app.js','auth.js','portal-api.js','portal-store.js','styles.css','management.css','settings.css','nav-sections.css','hierarchy.css','ops-settings.css','typography.css','interactions.css','enterprise.css','signature.html','signature.css','signature.js','admin.html','admin.css','admin.js','setup.html','setup.css','setup.js']);
@@ -135,6 +135,13 @@ function createPortalHandler({config,repository,authenticate}){
         if(req.method==='GET'){const company=repository.getCompany(session,companyId);audit(req,requestId,session,{action:'company.read',resourceType:'company',resourceId:companyId,companyId});return json(res,200,{company},requestId)}
         if(req.method==='PATCH'){const body=await readJsonBody(req);const company=repository.updateCompany(session,companyId,body);audit(req,requestId,session,{action:'company.updated',resourceType:'company',resourceId:companyId,companyId,metadata:{fields:Object.keys(body).slice(0,30)}});return json(res,200,{company},requestId)}
         return json(res,405,{error:{code:'METHOD_NOT_ALLOWED',message:'Method not allowed.'}},requestId,{Allow:'GET, PATCH'});
+      }
+      if(url.pathname==='/api/internal/integrations/connectwise/sync'){
+        ({principal,session}=await context(req));
+        if(!connectWiseSync)return json(res,503,{error:{code:'CONNECTWISE_UNAVAILABLE',message:'ConnectWise synchronization is not available.'}},requestId);
+        if(req.method==='GET'){repository.assertPermission(session,'integrations.read');const runs=connectWiseSync.runs(session,url.searchParams.get('limit'));audit(req,requestId,session,{action:'connectwise.sync_runs.listed',resourceType:'integration_sync',metadata:{count:runs.length}});return json(res,200,{configured:connectWiseSync.configured(),runs},requestId)}
+        if(req.method==='POST'){repository.assertPermission(session,'integrations.manage');const result=await connectWiseSync.sync(session);audit(req,requestId,session,{action:'connectwise.sync.completed',resourceType:'integration_sync',resourceId:result.run.id,metadata:{companiesSeen:result.run.companiesSeen,companiesCreated:result.run.companiesCreated,ticketsSeen:result.run.ticketsSeen,ticketsUpserted:result.run.ticketsUpserted,ticketsSkipped:result.run.ticketsSkipped,quota:result.quota}});return json(res,200,result,requestId)}
+        return json(res,405,{error:{code:'METHOD_NOT_ALLOWED',message:'Method not allowed.'}},requestId,{Allow:'GET, POST'});
       }
       if(url.pathname==='/api/internal/integrations'){
         ({principal,session}=await context(req));const companyId=url.searchParams.get('companyId');

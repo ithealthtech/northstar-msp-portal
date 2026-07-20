@@ -18,6 +18,8 @@ Client records, contact data, audit activity, support notes, integration metadat
 
 Demo identities, demo seed data, signature-only mode, and default-administrator behavior are disabled unless explicitly enabled. No default administrator password exists. Production startup rejects demo mode and requires Entra configuration for the MSP portal.
 
+ConnectWise credentials are server-only environment secrets. OAuth access tokens are cached in process memory until expiry and are never persisted or returned through portal APIs. Synchronization requires the MSP integration-management permission, creates durable provider mappings, imports companies as unpublished onboarding records, copies only an allowlisted subset of company and ticket fields, and records every run without credential material. Vendor pagination cannot leave the configured ConnectWise origin, and quota exhaustion produces a durable rate-limited state with a retry timestamp.
+
 ## Production gates
 
 - Terminate TLS at a maintained reverse proxy and set the canonical public URL.

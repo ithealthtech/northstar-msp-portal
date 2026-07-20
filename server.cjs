@@ -6,6 +6,8 @@ const {seedDemoData}=require('./server/seed.cjs');
 const {PortalRepository}=require('./server/repository.cjs');
 const {createEntraAuthenticator}=require('./server/auth.cjs');
 const {createPortalHandler}=require('./server/app.cjs');
+const {ConnectWiseClient}=require('./server/connectwise-client.cjs');
+const {ConnectWiseSyncService}=require('./server/connectwise-sync.cjs');
 
 function createApplication(options={}){
   const config=options.config||loadConfig(options.env);
@@ -13,8 +15,11 @@ function createApplication(options={}){
   if(config.seedDemoData)seedDemoData(db);
   const repository=options.repository||new PortalRepository(db);
   const authenticate=options.authenticate||createEntraAuthenticator({...config.auth,demoMode:config.demoMode});
-  const handler=createPortalHandler({config,repository,authenticate});
-  return{config,db,repository,handler};
+  const connectWiseConfig=config.connectwise||{baseUrl:'https://openapi.service.itsupport247.net',clientId:'',clientSecret:'',scope:'platform.companies.read platform.tickets.read',companiesPath:'/v1/companies',ticketsPath:'/v1/tickets'};
+  const connectWiseClient=options.connectWiseClient||new ConnectWiseClient(connectWiseConfig);
+  const connectWiseSync=options.connectWiseSync||new ConnectWiseSyncService({client:connectWiseClient,repository,companiesPath:connectWiseConfig.companiesPath,ticketsPath:connectWiseConfig.ticketsPath});
+  const handler=createPortalHandler({config,repository,authenticate,connectWiseSync});
+  return{config,db,repository,connectWiseClient,connectWiseSync,handler};
 }
 
 function startServer(options={}){
