@@ -29,7 +29,12 @@ function startServer(options={}){
   const server=http.createServer(application.handler);
   server.once('error',()=>{application.db.close();releaseLease()});
   server.listen(application.config.port,application.config.host,()=>console.log(`Northstar MSP Portal: http://${application.config.host}:${application.config.port}`));
-  function shutdown(signal){console.log(`${signal} received; closing portal server.`);server.close(()=>{application.db.close();releaseLease();process.exit(0)})}
+  function shutdown(signal){
+    console.log(`${signal} received; closing portal server.`);
+    server.close(()=>{application.db.close();releaseLease();process.exit(0)});
+    server.closeIdleConnections?.();
+    setTimeout(()=>server.closeAllConnections?.(),5000).unref();
+  }
   process.once('SIGINT',()=>shutdown('SIGINT'));
   process.once('SIGTERM',()=>shutdown('SIGTERM'));
   return{...application,server,releaseLease};
