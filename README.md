@@ -56,7 +56,7 @@ When the portal is served from `127.0.0.1` with local demo mode enabled, the rol
 
 ## Local development
 
-Node.js 22.13 or later is required.
+Node.js 24 or later is required. Northstar's encrypted online backup uses the `node:sqlite` backup API included in that runtime baseline.
 
 ```powershell
 npm install

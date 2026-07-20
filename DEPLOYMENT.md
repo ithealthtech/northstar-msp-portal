@@ -2,6 +2,8 @@
 
 This package is designed to run as a web-based MSP portal with a Node.js server, SQLite by default, and a migration path for PostgreSQL or SQL Server.
 
+Node.js 24 or later is required. Deployment hosts and build agents must use the same major runtime because the supported encrypted backup path depends on the Node 24 `node:sqlite` backup API.
+
 ## Deployment profiles
 
 - Local evaluation: Node.js + SQLite database in `data/northstar.db`.
