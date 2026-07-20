@@ -156,11 +156,15 @@ When the app is connected to the backend, the page saves the install profile thr
 
 ```powershell
 npm test
+npm run test:e2e
 npm run smoke
 npm run build
+npm run audit:dependencies
 ```
 
 The test suite verifies client isolation, company-claim rejection, unknown-user denial, scoped MSP portfolios, MSP owner access, role permissions, API method handling, JSON API fallthrough behavior, durable denial auditing, tenant-isolated company settings, invitation and membership lifecycle controls, last-administrator protection, document workflows, personal-profile persistence, approval ownership and terminal decisions, and install-profile persistence.
+
+The Playwright gate runs in system Chrome and verifies automated WCAG 2 A/AA rules on the sign-in screen and all three role dashboards, keyboard skip navigation, page-heading focus, modal focus trapping and restoration, mobile navigation state, and horizontal overflow. See [Accessibility](docs/ACCESSIBILITY.md) for the supported baseline and manual release checklist.
 
 The smoke test builds the browser assets, starts the server on a random local port with a temporary SQLite database, verifies `/api/health`, verifies static portal delivery, verifies `portal-api.js`, and saves an install profile through the real HTTP API.
 

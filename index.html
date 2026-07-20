@@ -19,24 +19,24 @@
   <link rel="stylesheet" href="enterprise.css">
 </head>
 <body class="portal-surface">
-  <section class="login-screen" id="loginScreen">
+  <section class="login-screen" id="loginScreen" aria-labelledby="loginTitle">
     <div class="login-brand"><div class="logo">N</div><div><strong>Northstar</strong><span>Secure Client Portal</span></div></div>
     <div class="login-card">
       <span class="eyebrow">SECURE WORKSPACE</span>
-      <h1>Your technology operation, clearly in view.</h1>
+      <h1 id="loginTitle">Your technology operation, clearly in view.</h1>
       <p>One trusted workspace for service, security, assets, billing, documentation, and accountable administration.</p>
-      <button class="microsoft" id="microsoftLogin"><span class="ms"><i></i><i></i><i></i><i></i></span>Continue with Microsoft</button>
+      <button class="microsoft" id="microsoftLogin"><span class="ms" aria-hidden="true"><i></i><i></i><i></i><i></i></span>Continue with Microsoft</button>
       <div class="divider" id="previewDivider"><span>Prototype access</span></div>
       <div class="demo-logins" id="previewLogins"><button data-role-login="user">Preview end-user portal</button><button data-role-login="admin">Preview client-admin portal</button><button data-role-login="msp">Preview MSP management</button></div>
-      <small id="loginHelp">Microsoft Entra OAuth2/OIDC configuration is ready to connect.</small>
+      <small id="loginHelp" role="status" aria-live="polite">Microsoft Entra OAuth2/OIDC configuration is ready to connect.</small>
     </div>
     <div class="trust"><span>◈ Entra ID</span><span>✓ MFA ready</span><span>⌘ Role-based access</span></div>
   </section>
-  <section class="login-screen" id="setupScreen" hidden>
+  <section class="login-screen" id="setupScreen" aria-labelledby="setupTitle" hidden>
     <div class="login-brand"><div class="logo">N</div><div><strong>Portal setup</strong><span>First-run configuration</span></div></div>
     <form class="login-card" id="setupForm">
       <span class="eyebrow">INITIAL SETUP</span>
-      <h1>Create the MSP owner account.</h1>
+      <h1 id="setupTitle">Create the MSP owner account.</h1>
       <p>This is a clean installation. No sample clients, users, or records will be added.</p>
       <label>MSP company name<input name="companyName" required minlength="2" autocomplete="organization" placeholder="Your MSP company"></label>
       <label>Portal product name<input name="productName" autocomplete="organization-title" placeholder="MSP Client Portal"></label>
@@ -44,26 +44,27 @@
       <label>Owner email<input name="ownerEmail" required type="email" autocomplete="email" placeholder="you@yourmsp.com"></label>
       <label>Support phone <input name="supportPhone" type="tel" autocomplete="tel" placeholder="(555) 555-5555"></label>
       <button class="microsoft" type="submit">Create owner account and continue</button>
-      <small id="setupHelp">The first account receives MSP Owner access.</small>
+      <small id="setupHelp" role="status" aria-live="polite">The first account receives MSP Owner access.</small>
     </form>
   </section>
 
   <div class="app-shell" id="portal" hidden>
+    <a class="skip-link" href="#mainContent">Skip to main content</a>
     <aside class="sidebar" id="sidebar">
       <div class="brand"><div class="logo">N</div><div><strong>Northstar</strong><span>Client Portal</span></div></div>
       <div class="company-card"><div class="company-avatar" id="companyInitials">AC</div><div><strong id="companyName">Acme & Co.</strong><span id="companyPlan">Managed Complete</span></div><button data-action="switch-company" aria-label="Switch company">⌄</button></div>
       <nav id="navigation" aria-label="Portal navigation"></nav>
       <div class="sidebar-bottom"><div class="support-card"><span>24/7</span><strong>Service desk</strong><small>Get help from your support team.</small><button data-action="ticket">Create a request</button></div><button class="nav-button" data-action="logout"><span>OUT</span>Sign out</button></div>
     </aside>
-    <main>
-      <header class="topbar"><button class="menu" id="menu" aria-label="Open navigation">☰</button><div class="search-wrap"><label class="search"><span>Search</span><input id="globalSearch" type="search" autocomplete="off" placeholder="Search tickets, invoices, documents…"><kbd>Ctrl K</kbd></label><div class="search-panel" id="searchPanel" hidden></div></div><div class="profile"><button class="notice" data-action="notifications" aria-label="Notifications"><span aria-hidden="true">●</span><i></i></button><button class="profile-button" data-action="profile"><span class="avatar" id="avatar">TM</span><span><strong id="profileName">Taylor Morgan</strong><small id="profileRole">Client administrator</small></span><b>⌄</b></button></div></header>
-      <section class="content" id="content" aria-live="polite"></section>
+    <main id="mainContent" tabindex="-1">
+      <header class="topbar"><button class="menu" id="menu" aria-label="Open navigation" aria-controls="sidebar" aria-expanded="false">☰</button><div class="search-wrap"><label class="search"><span>Search</span><input id="globalSearch" type="search" autocomplete="off" placeholder="Search tickets, invoices, documents…"><kbd aria-hidden="true">Ctrl K</kbd></label><div class="search-panel" id="searchPanel" hidden></div></div><div class="profile"><button class="notice" data-action="notifications" aria-label="Notifications"><span aria-hidden="true">●</span><i aria-hidden="true"></i></button><button class="profile-button" data-action="profile"><span class="avatar" id="avatar" aria-hidden="true">TM</span><span><strong id="profileName">Taylor Morgan</strong><small id="profileRole">Client administrator</small></span><b aria-hidden="true">⌄</b></button></div></header>
+      <section class="content" id="content"></section>
     </main>
   </div>
-  <div class="overlay" id="overlay"></div>
+  <div class="overlay" id="overlay" aria-hidden="true"></div>
   <div class="modal-wrap" id="modal" hidden><div class="modal" role="dialog" aria-modal="true" aria-labelledby="modalTitle"><div class="modal-head"><div><span class="eyebrow">SUPPORT REQUEST</span><h2 id="modalTitle">How can we help?</h2></div><button data-action="close" aria-label="Close">×</button></div><form id="ticketForm"><label>Request type<select><option>Something isn't working</option><option>Request a change</option><option>Security concern</option><option>Question or advice</option></select></label><label>Subject<input id="ticketSubject" required placeholder="Briefly describe the issue"></label><label>Details<textarea required rows="5" placeholder="What happened, who is affected, and when did it start?"></textarea></label><div class="form-row"><label>Impact<select><option>Just me</option><option>A few people</option><option>Business critical</option></select></label><label>Best phone number<input type="tel" placeholder="(555) 123-4567"></label></div><label class="upload"><input type="file" hidden><span>＋</span><strong>Add screenshots or files</strong><small>Browse or drag and drop</small></label><div class="modal-actions"><button type="button" class="btn secondary" data-action="close">Cancel</button><button class="btn primary" type="submit">Submit request →</button></div></form></div></div>
   <div class="modal-wrap" id="actionModal" hidden><div class="modal action-modal" role="dialog" aria-modal="true" aria-labelledby="actionTitle"><div id="actionModalContent"></div></div></div>
-  <div class="toast" id="toast"></div>
+  <div class="toast" id="toast" role="status" aria-live="polite" aria-atomic="true"></div>
   <script src="https://alcdn.msauth.net/browser/4.26.0/js/msal-browser.min.js"></script>
   <script type="module" src="auth-config.js"></script>
   <script type="module" src="auth.js"></script>
