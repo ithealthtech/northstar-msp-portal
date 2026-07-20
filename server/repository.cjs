@@ -51,6 +51,11 @@ function redactMetadata(value){
 class PortalRepository{
   constructor(db){this.db=db}
 
+  getOperationalHealth(){
+    const rows=this.db.prepare("SELECT event_type,MAX(created_at) AS last_succeeded_at FROM operational_events WHERE status='succeeded' GROUP BY event_type").all();
+    return Object.fromEntries(rows.map(row=>[row.event_type,row.last_succeeded_at]));
+  }
+
   getSetupStatus(){
     const count=this.db.prepare("SELECT COUNT(*) AS count FROM users").get().count;
     return{initialized:Number(count)>0};

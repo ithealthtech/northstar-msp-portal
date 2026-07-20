@@ -62,7 +62,7 @@ function createPortalHandler({config,repository,authenticate,connectWiseSync=nul
       }
       if(url.pathname==='/api/health'){
         if(req.method!=='GET')return json(res,405,{error:{code:'METHOD_NOT_ALLOWED',message:'Method not allowed.'}},requestId,{Allow:'GET'});
-        repository.db.prepare('SELECT 1').get();return json(res,200,{status:'ok',service:'northstar-msp-portal',database:'ready',time:new Date().toISOString()},requestId)
+        repository.db.prepare('SELECT 1').get();const operations=repository.getOperationalHealth();const backupConfigured=Boolean(config.backup?.encryptionKey);const status=config.production&&(!backupConfigured||!operations.backup)?'degraded':'ok';return json(res,200,{status,service:'northstar-msp-portal',database:'ready',operations:{backupConfigured,lastBackupAt:operations.backup||null,lastRestoreVerificationAt:operations.restore_verification||null,lastRetentionAt:operations.retention||null},time:new Date().toISOString()},requestId)
       }
       if(url.pathname.startsWith('/api/signature/')){
         const handled=await signaturePortal(req,res,url,requestId);
