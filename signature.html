@@ -1,0 +1,255 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="description" content="Company email signature generator">
+  <title>Signature Studio | Northstar MSP Portal</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="signature.css">
+  <link rel="stylesheet" href="enterprise.css">
+</head>
+<body class="signature-surface">
+  <section class="login-view" id="loginView">
+    <div class="login-box">
+      <span>Email Signature Portal</span>
+      <h1>Company signature control center.</h1>
+      <p>Manage employee signatures, switch templates, update campaigns, and copy production-ready HTML from one browser page.</p>
+      <form id="loginForm">
+        <label>Email<input name="email" type="email" autocomplete="username"></label>
+        <label>Password<input name="password" type="password" autocomplete="current-password"></label>
+        <button type="submit">Sign in</button>
+      </form>
+      <small>Use the administrator account created during setup. <a href="/setup.html">Run setup</a></small>
+    </div>
+  </section>
+
+  <header class="app-header" id="appHeader">
+    <div class="brand-mark" aria-label="Northstar">
+      <span>NS</span>
+      <div>
+        <strong>Northstar</strong>
+        <small>Email Signature Portal</small>
+      </div>
+    </div>
+    <div class="header-profile">
+      <button id="notificationToggle" class="header-icon" type="button" aria-label="Notifications" aria-expanded="false">
+        <span class="bell-dot" id="notificationCount" hidden>0</span>
+        <span aria-hidden="true">!</span>
+      </button>
+      <div class="notification-menu" id="notificationMenu" hidden>
+        <div class="notification-head">
+          <strong>Notifications</strong>
+          <button id="markNotificationsRead" type="button">Mark read</button>
+        </div>
+        <div class="notification-list" id="notificationList"></div>
+      </div>
+      <button id="profileMenuToggle" class="profile-menu-toggle" type="button" aria-label="Open account menu" aria-expanded="false">
+        <span id="headerAvatar">ID</span>
+        <strong id="headerName">Signed out</strong>
+        <span aria-hidden="true">v</span>
+      </button>
+      <div class="account-menu" id="accountMenu" hidden>
+        <div class="account-card-head">
+          <div id="accountAvatar" class="account-avatar">ID</div>
+          <strong id="accountName">Signed out</strong>
+          <small id="headerRole">Profile</small>
+        </div>
+        <button id="adminJump" class="account-menu-row" data-admin-only type="button">Administration</button>
+        <div class="account-menu-actions">
+          <button id="profileToggle" type="button">Account</button>
+          <button id="logout" type="button">Logout</button>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <main class="signature-app">
+    <section class="panel controls">
+      <div class="masthead">
+        <span id="sessionLabel">Email Signature Studio</span>
+        <h1>Company signatures, users, campaigns, and templates.</h1>
+      </div>
+
+      <form id="signatureForm">
+        <section class="tab-section active" data-section="person">
+          <div class="profile-summary" id="profileSummary"></div>
+        </section>
+
+        <section class="tab-section" data-section="company">
+          <label>Company / website label<input name="companyName" value="syncanddeliver.com"></label>
+          <label>Website<input name="website" value="https://msp.example"></label>
+          <label>Facebook URL<input name="facebookUrl" value="https://facebook.com/examplemsp"></label>
+          <label>X / Twitter URL<input name="xUrl" value="https://x.com/examplemsp"></label>
+          <label>LinkedIn URL<input name="linkedinUrl" value="https://www.linkedin.com/company/example-msp"></label>
+          <div class="color-row">
+            <label>Text color<input name="primaryColor" type="color" value="#111936"></label>
+            <label>Accent color<input name="accentColor" type="color" value="#5367d8"></label>
+          </div>
+        </section>
+
+        <section class="tab-section" data-section="campaign">
+          <label>Event headline<input name="eventHeadline" value="Join our conference"></label>
+          <label>CTA text<input name="ctaText" value="Book now"></label>
+          <label>CTA link<input name="bannerUrl" value="https://msp.example"></label>
+          <label>Banner background image<input name="bannerImageUrl" value="/signature-it-banner.png"></label>
+          <div class="banner-library" id="bannerLibrary" aria-label="Event banner choices"></div>
+          <label>Banner effect<select name="bannerEffect"><option value="tech-pulse">Tech pulse</option><option value="starfield">Starfield</option><option value="lightning">Lightning</option><option value="signal-rings">Signal rings</option><option value="clean">Clean overlay</option><option value="none">None</option></select></label>
+          <div class="effect-library" id="effectLibrary" aria-label="Banner effect choices"></div>
+          <label>Center panel top<input name="eventTop" value="AI"></label>
+          <label>Center panel middle<input name="eventMiddle" value="in"></label>
+          <label>Center panel bottom<input name="eventBottom" value="tech"></label>
+          <label>Date line 1<input name="dateLine1" value="12th May"></label>
+          <label>Date line 2<input name="dateLine2" value="7pm"></label>
+          <div class="color-row">
+            <label>Banner color<input name="bannerColor" type="color" value="#9aadff"></label>
+            <label>Panel color<input name="panelColor" type="color" value="#f39bd2"></label>
+          </div>
+          <label>Disclaimer<textarea name="disclaimer" rows="4">This email and any attachments may contain confidential information intended only for the recipient. If you received it in error, please notify the sender and delete it.</textarea></label>
+          <label class="check"><input name="showDisclaimer" type="checkbox" checked> Include disclaimer</label>
+        </section>
+
+        <section class="tab-section" data-section="style">
+          <label>Template<select name="template"><option value="event-card">Event card</option><option value="clean-card">Clean corporate</option><option value="compact">Compact</option></select></label>
+          <label>Card background<input name="cardColor" type="color" value="#ffffff"></label>
+          <label>Outer preview background<input name="outerColor" type="color" value="#5367d8"></label>
+          <label>Social button color<input name="socialColor" type="color" value="#eef1f6"></label>
+          <label>Corner radius<select name="radius"><option value="12">Soft</option><option value="6">Subtle</option><option value="0">Square</option><option value="20">Rounded</option></select></label>
+          <label>Signature width<input name="signatureWidth" type="number" min="460" max="760" value="650"></label>
+        </section>
+
+        <section class="tab-section" data-section="deploy">
+          <label class="check"><input name="useUtm" type="checkbox" checked> Add UTM tags to signature links</label>
+          <label>UTM source<input name="utmSource" value="email_signature"></label>
+          <label>UTM medium<input name="utmMedium" value="email"></label>
+          <label>UTM campaign<input name="utmCampaign" value="conference"></label>
+          <label>UTM content<input name="utmContent" value="signature_banner"></label>
+          <label>Deployment package name<input name="packageName" value="example-msp-signatures"></label>
+        </section>
+
+      </form>
+    </section>
+
+    <section class="panel output">
+      <div class="preview-head">
+        <div>
+          <span>Live preview</span>
+          <h2>Employee signature</h2>
+        </div>
+        <div class="actions">
+          <button id="saveUser" class="primary-action" type="button">Save user</button>
+          <button id="duplicateTemplate" type="button">Save template</button>
+          <button id="copyRich" type="button">Copy signature</button>
+          <button id="copyHtml" class="accent-action" type="button">Copy HTML</button>
+          <button id="exportPackage" type="button">Export package</button>
+        </div>
+      </div>
+
+      <div class="admin-switcher" id="adminUserSelector" data-admin-only>
+        <select id="employeeSelect" aria-label="Select employee"></select>
+        <button id="manageUsers" type="button">Manage users</button>
+      </div>
+
+      <div class="tabs top-menu" role="tablist" aria-label="Signature settings">
+        <button class="active" data-tab="person" type="button">Person</button>
+        <button data-tab="company" type="button">Company</button>
+        <button data-tab="campaign" type="button">Event</button>
+        <button data-tab="style" type="button">Style</button>
+        <button data-tab="deploy" type="button">Deploy</button>
+      </div>
+
+      <div class="template-rail" id="templateRail"></div>
+
+      <div class="email-frame">
+        <div id="signaturePreview" class="signature-preview" aria-live="polite"></div>
+      </div>
+
+      <details class="html-box">
+        <summary>Generated HTML</summary>
+        <textarea id="htmlOutput" spellcheck="false"></textarea>
+      </details>
+      <div class="toast" id="toast" role="status" aria-live="polite"></div>
+    </section>
+  </main>
+
+  <section class="profile-modal" id="profilePanel" hidden>
+    <div class="profile-backdrop" data-close-profile></div>
+    <div class="profile-dialog" role="dialog" aria-modal="true" aria-labelledby="profileTitle">
+      <aside class="account-side">
+        <div class="account-side-head">
+          <strong>Account</strong>
+          <small>Profile and access</small>
+        </div>
+        <button class="active" data-account-tab="details" type="button">Details</button>
+        <button data-account-tab="security" type="button">Security</button>
+        <button data-account-tab="preferences" type="button">Preferences</button>
+        <button data-account-tab="activity" type="button">Activity</button>
+      </aside>
+      <form id="profileForm">
+        <div class="account-form-head">
+          <span>Signed-in profile</span>
+          <h3 id="profileTitle">Contact info used in your signature</h3>
+        </div>
+        <div class="account-pane active" data-account-pane="details">
+          <div class="account-help">Your saved contact info is used automatically when this portal builds your email signature.</div>
+          <div class="profile-grid">
+            <label>Full name<input name="fullName" autocomplete="name"></label>
+            <label>Job title<input name="jobTitle" autocomplete="organization-title"></label>
+            <label>Email<input name="email" type="email" autocomplete="email"></label>
+            <label>Phone<input name="phone" autocomplete="tel"></label>
+            <label>Mobile<input name="mobile" autocomplete="tel"></label>
+            <label>Profile photo URL<input name="photoUrl" placeholder="https://..."></label>
+          </div>
+        </div>
+        <div class="account-pane" data-account-pane="security">
+          <div class="account-help">Change your password here. Leave both fields blank if you are only updating profile details.</div>
+          <div class="profile-grid">
+            <label>Current password<input name="currentPassword" type="password" autocomplete="current-password"></label>
+            <label>New password<input name="newPassword" type="password" autocomplete="new-password" placeholder="At least 10 characters"></label>
+          </div>
+          <div class="security-options">
+            <div><strong>Session protection</strong><small>Sessions use secure server-side tokens and expire automatically.</small></div>
+            <div><strong>MFA readiness</strong><small>Multi-factor enforcement can be enabled from Administration when configured.</small></div>
+          </div>
+        </div>
+        <div class="account-pane" data-account-pane="preferences">
+          <div class="account-help">Control how the editor behaves for your account on this browser.</div>
+          <div class="profile-grid">
+            <label class="check"><input name="notifyUnsaved" type="checkbox"> Show unsaved-change notifications</label>
+            <label class="check"><input name="compactPreview" type="checkbox"> Use compact preview spacing</label>
+          </div>
+          <div class="preference-cards">
+            <div><strong>Notifications</strong><small>Use reminders for unsaved signature edits and onboarding items.</small></div>
+            <div><strong>Preview density</strong><small>Compact mode reduces preview padding for smaller screens.</small></div>
+          </div>
+        </div>
+        <div class="account-pane" data-account-pane="activity">
+          <div class="account-activity" id="accountActivity"></div>
+        </div>
+        <div class="profile-actions">
+          <button type="submit">Save profile</button>
+          <button id="profileCancel" type="button">Close</button>
+        </div>
+      </form>
+    </div>
+  </section>
+  <section class="profile-modal template-modal" id="templatePanel" hidden>
+    <div class="profile-backdrop" data-close-template></div>
+    <form class="template-dialog" id="templateForm" role="dialog" aria-modal="true" aria-labelledby="templateTitle">
+      <div class="account-form-head">
+        <span>Template library</span>
+        <h3 id="templateTitle">Save current design as a template</h3>
+      </div>
+      <div class="account-help">Name this saved version so users can tell what campaign or layout it applies to.</div>
+      <label>Template name<input name="templateName" maxlength="80" required placeholder="Security review - July"></label>
+      <div class="profile-actions">
+        <button type="submit">Save template</button>
+        <button id="templateCancel" type="button">Close</button>
+      </div>
+    </form>
+  </section>
+  <script src="signature.js"></script>
+</body>
+</html>

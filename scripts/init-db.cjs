@@ -1,0 +1,11 @@
+'use strict';
+const {loadConfig}=require('../server/config.cjs');
+const {openDatabase}=require('../server/database.cjs');
+const {seedDemoData}=require('../server/seed.cjs');
+const config=loadConfig();
+const db=openDatabase(config.databasePath);
+const seeded=config.seedDemoData?seedDemoData(db):false;
+const companies=db.prepare('SELECT COUNT(*) AS total FROM companies').get().total;
+console.log(`Database ready: ${config.databasePath}`);
+console.log(`Companies: ${companies}${seeded?' (demo data seeded)':''}`);
+db.close();

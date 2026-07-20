@@ -1,0 +1,176 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Administration | Northstar MSP Portal</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="admin.css">
+  <link rel="stylesheet" href="enterprise.css">
+</head>
+<body class="admin-surface">
+  <header class="topbar">
+    <a class="brand" href="/"><span>NS</span><strong>Northstar Administration</strong></a>
+    <nav>
+      <a href="signature.html">Signature studio</a>
+      <button id="logout" type="button">Logout</button>
+    </nav>
+  </header>
+
+  <main class="admin-shell">
+    <aside class="admin-nav">
+      <strong>Administration</strong>
+      <a class="active" href="#overview" data-admin-tab="overview">Overview</a>
+      <a href="#app" data-admin-tab="app">Application</a>
+      <a href="#database" data-admin-tab="database">Database</a>
+      <a href="#api" data-admin-tab="api">API</a>
+      <a href="#security" data-admin-tab="security">Security</a>
+      <a href="#deployment" data-admin-tab="deployment">Deployment</a>
+      <a href="#users" data-admin-tab="users">Users</a>
+    </aside>
+
+    <section class="admin-content">
+      <div class="page-head">
+        <span>Control panel</span>
+        <h1>Administration settings</h1>
+        <p>Configure the self-hosted signature app, database target, API integrations, security defaults, and deployment requirements from one place.</p>
+      </div>
+
+      <section class="admin-pane active" id="overview" data-admin-pane="overview">
+        <div class="stats">
+          <article><strong id="statUsers">0</strong><small>Total users</small></article>
+          <article><strong id="statActive">0</strong><small>Active users</small></article>
+          <article><strong id="statTemplates">0</strong><small>Templates</small></article>
+          <article><strong id="statSessions">0</strong><small>Active sessions</small></article>
+        </div>
+        <div class="card">
+          <h2>System overview</h2>
+          <p>This page summarizes the running signature portal. Use the menu on the left to open a specific settings area.</p>
+        </div>
+        <div class="card">
+          <h2>Production readiness</h2>
+          <div class="readiness-list" id="readinessList"></div>
+        </div>
+      </section>
+
+      <form id="adminForm">
+        <section class="card admin-pane" id="app" data-admin-pane="app">
+          <h2>Application</h2>
+          <div class="grid">
+            <label>Company name<input name="companyName"></label>
+            <label>Primary admin email<input name="adminEmail" type="email"></label>
+            <label>Public domain<input name="domain" placeholder="https://signatures.company.com"></label>
+            <label>Asset base URL<input name="assetBaseUrl" placeholder="https://signatures.company.com"></label>
+            <label>Media base URL<input name="mediaBaseUrl" placeholder="https://signatures.company.com/media"></label>
+          </div>
+        </section>
+
+        <section class="card admin-pane" id="database" data-admin-pane="database">
+          <h2>Database</h2>
+          <div class="grid">
+            <label>Provider<select name="databaseProvider"><option value="sqlite">SQLite (current release)</option></select></label>
+            <label>Server / host<input name="databaseHost" placeholder="localhost or SQL listener"></label>
+            <label>Database name<input name="databaseName"></label>
+            <label>Database user<input name="databaseUser"></label>
+          </div>
+        </section>
+
+        <section class="card admin-pane" id="api" data-admin-pane="api">
+          <h2>API and integrations</h2>
+          <div class="grid">
+            <label>API base URL<input name="apiBaseUrl" placeholder="https://api.company.com"></label>
+            <label>API key label<input name="apiKeyLabel" placeholder="Production key"></label>
+            <label>SMTP host<input name="smtpHost" placeholder="smtp.office365.com"></label>
+            <label>SMTP from address<input name="smtpFrom" type="email"></label>
+          </div>
+        </section>
+
+        <section class="card admin-pane" id="security" data-admin-pane="security">
+          <h2>Security</h2>
+          <div class="grid">
+            <label>Session length, hours<input name="sessionHours" type="number" min="1" max="168"></label>
+            <label class="check"><input name="requireMfa" type="checkbox"> Require MFA when enabled</label>
+            <label class="check"><input name="allowSelfProfile" type="checkbox"> Allow users to edit their own profile</label>
+          </div>
+        </section>
+
+        <section class="card admin-pane" id="deployment" data-admin-pane="deployment">
+          <h2>Deployment</h2>
+          <div class="grid">
+            <label>Deployment target<select name="deploymentTarget"><option value="node">Node service</option><option value="docker">Docker</option><option value="iis-reverse-proxy">IIS reverse proxy</option><option value="windows-service">Windows service</option></select></label>
+            <label>Backup path<input name="backupPath" placeholder="C:\Backups\signature-portal"></label>
+          </div>
+        </section>
+
+        <section class="card admin-pane" id="users" data-admin-pane="users">
+          <div class="card-head">
+            <div>
+              <h2>User management</h2>
+              <p>Create users, manage access, reset passwords, and open a user's signature editor.</p>
+            </div>
+            <button id="newUser" type="button">New user</button>
+          </div>
+          <div class="user-status" id="userStatus" role="status" aria-live="polite"></div>
+          <div class="user-management" id="userManagement"></div>
+        </section>
+
+        <div class="savebar">
+          <button type="submit">Save administration settings</button>
+          <span id="statusText"></span>
+        </div>
+      </form>
+    </section>
+  </main>
+
+  <section class="password-modal" id="passwordModal" hidden>
+    <div class="modal-backdrop" data-close-password></div>
+    <form class="password-dialog" id="passwordForm" role="dialog" aria-modal="true" aria-labelledby="passwordTitle">
+      <div class="modal-head">
+        <span>Password reset</span>
+        <h2 id="passwordTitle">Reset user password</h2>
+        <p id="passwordUser">Choose a password manually or generate a secure temporary password.</p>
+      </div>
+      <label>New password<input id="resetPassword" name="password" type="text" autocomplete="off" minlength="10"></label>
+      <div class="password-tools">
+        <button id="generatePassword" type="button">Generate</button>
+        <button id="copyPassword" type="button">Copy</button>
+      </div>
+      <div class="password-result" id="passwordResult" hidden></div>
+      <div class="modal-actions">
+        <button type="submit">Save password</button>
+        <button id="closePasswordModal" type="button">Close</button>
+      </div>
+    </form>
+  </section>
+  <section class="password-modal" id="createUserModal" hidden>
+    <div class="modal-backdrop" data-close-create-user></div>
+    <form class="password-dialog user-create-dialog" id="createUserForm" role="dialog" aria-modal="true" aria-labelledby="createUserTitle">
+      <div class="modal-head">
+        <span>New account</span>
+        <h2 id="createUserTitle">Create user</h2>
+        <p>Enter the employee's account and signature profile details before the login is created.</p>
+      </div>
+      <div class="modal-grid">
+        <label>Full name<input name="displayName" autocomplete="name" required></label>
+        <label>Email<input name="email" type="email" autocomplete="email" required></label>
+        <label>Job title<input name="jobTitle" autocomplete="organization-title"></label>
+        <label>Role<select name="role"><option value="editor">Editor</option><option value="viewer">Viewer</option><option value="admin">Admin</option></select></label>
+        <label>Status<select name="status"><option value="active">Active</option><option value="disabled">Disabled</option></select></label>
+            <label>Password<input id="createPassword" name="password" type="text" autocomplete="off" minlength="12" required></label>
+      </div>
+      <div class="password-tools">
+        <button id="generateCreatePassword" type="button">Generate</button>
+        <button id="copyCreatePassword" type="button">Copy</button>
+      </div>
+      <div class="password-result" id="createUserResult" hidden></div>
+      <div class="modal-actions">
+        <button type="submit">Create user</button>
+        <button id="closeCreateUserModal" type="button">Close</button>
+      </div>
+    </form>
+  </section>
+  <script src="admin.js"></script>
+</body>
+</html>

@@ -1,0 +1,1 @@
+import{defineConfig}from'vite';export default defineConfig({server:{port:4173,strictPort:true,proxy:{'/api':{target:'http://127.0.0.1:4174',changeOrigin:true},'/auth-config.js':{target:'http://127.0.0.1:4174',changeOrigin:true}}},build:{target:'es2022'}});

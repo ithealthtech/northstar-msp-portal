@@ -1,0 +1,128 @@
+/* Unified portal typography system — loaded last to normalize every role and module. */
+:root{
+  --font-ui:"DM Sans",system-ui,-apple-system,"Segoe UI",sans-serif;
+  --font-display:"Manrope","DM Sans",system-ui,sans-serif;
+  --font-mono:"SFMono-Regular",Consolas,"Liberation Mono",monospace;
+  --type-utility:10px;
+  --type-meta:11px;
+  --type-control:12px;
+  --type-body:13px;
+  --type-heading-sm:14px;
+  --type-heading:16px;
+  --type-heading-lg:20px;
+  --type-title:clamp(28px,2.7vw,34px);
+  --type-metric:26px;
+  --leading-tight:1.2;
+  --leading-ui:1.35;
+  --leading-copy:1.5;
+}
+
+html{font-size:16px}
+body{font-family:var(--font-ui);font-size:var(--type-body);line-height:var(--leading-copy);font-weight:400;-webkit-font-smoothing:antialiased;text-rendering:optimizeLegibility}
+button,input,select,textarea{font-family:var(--font-ui);line-height:var(--leading-ui)}
+code,kbd{font-family:var(--font-mono)}
+h1,h2,h3,.brand strong,.login-brand strong,.stat-value,.ring strong{font-family:var(--font-display)}
+
+/* Global navigation and account chrome */
+.brand strong,.login-brand strong{font-size:15px;line-height:var(--leading-tight);font-weight:700}
+.brand span,.login-brand span{font-size:var(--type-meta);line-height:var(--leading-ui)}
+.company-avatar,.avatar,.client-logo{font-size:var(--type-meta)}
+.company-card strong{font-size:var(--type-body);line-height:var(--leading-ui)}
+.company-card span{font-size:var(--type-meta);line-height:var(--leading-ui)}
+.nav-label,.nav-section-toggle{font-size:var(--type-utility);line-height:var(--leading-ui)}
+.nav-section-toggle b{font-size:var(--type-control)}
+.nav-button{font-size:var(--type-control);line-height:var(--leading-ui);font-weight:500}
+.nav-button em{font-size:var(--type-utility);line-height:var(--leading-ui)}
+.support-card strong{font-size:var(--type-control);line-height:var(--leading-ui)}
+.support-card small,.support-card button{font-size:var(--type-meta);line-height:var(--leading-copy)}
+.search input{font-size:var(--type-body)}
+.search kbd{font-size:var(--type-utility)}
+.profile-button strong{font-size:var(--type-control);line-height:var(--leading-ui)}
+.profile-button small{font-size:var(--type-meta);line-height:var(--leading-ui)}
+
+/* Page hierarchy */
+.page-breadcrumb{font-size:var(--type-meta);line-height:var(--leading-ui)}
+.page-breadcrumb b{font-size:var(--type-control)}
+.section-tabs button{font-size:var(--type-meta);line-height:var(--leading-ui);font-weight:600}
+.eyebrow,.ops-kicker{font-size:var(--type-utility)!important;line-height:var(--leading-ui);font-weight:700}
+.page-head h1,html[data-portal-role="msp"] .page-head h1{font-family:var(--font-display);font-size:var(--type-title);line-height:1.15;font-weight:800;letter-spacing:-.035em}
+.page-head p,html[data-portal-role="msp"] .page-head p{font-size:var(--type-body);line-height:var(--leading-copy)}
+.head-actions .btn{white-space:nowrap}
+
+/* Controls and system feedback */
+.btn{font-size:var(--type-control);line-height:var(--leading-ui);font-weight:600}
+.filter{font-size:var(--type-meta);line-height:var(--leading-ui);font-weight:600}
+.status{font-size:var(--type-utility);line-height:var(--leading-ui);font-weight:700}
+.admin-banner{font-size:var(--type-meta);line-height:var(--leading-copy)}
+.toast{font-size:var(--type-control);line-height:var(--leading-ui)}
+
+/* Metrics, cards, rows, and operational copy */
+.stat-label{font-size:var(--type-control);line-height:var(--leading-ui)}
+.stat-value,html[data-portal-role="msp"] .stat-value{font-family:var(--font-display);font-size:var(--type-metric);line-height:var(--leading-tight);font-weight:800}
+.stat-foot{font-size:var(--type-meta);line-height:var(--leading-ui)}
+.card-head h2,html[data-portal-role="msp"] .card-head h2{font-family:var(--font-display);font-size:var(--type-heading);line-height:var(--leading-tight);font-weight:700}
+.card-head p,html[data-portal-role="msp"] .card-head p{font-size:var(--type-meta);line-height:var(--leading-copy)}
+.row-copy strong,.row-meta strong{font-size:var(--type-control);line-height:var(--leading-ui)}
+.row-copy span,.row-meta span{font-size:var(--type-meta);line-height:var(--leading-ui)}
+.health-list div,.info-row,.info-row strong,.metric-label{font-size:var(--type-control);line-height:var(--leading-ui)}
+.quick strong{font-size:var(--type-control);line-height:var(--leading-ui)}
+.quick small{font-size:var(--type-meta);line-height:var(--leading-ui)}
+.ring strong{font-size:var(--type-metric);line-height:var(--leading-tight)}
+.ring span{font-size:var(--type-utility);line-height:var(--leading-ui)}
+.announcement h3,.management-callout h3{font-family:var(--font-display);font-size:var(--type-heading-sm);line-height:var(--leading-tight);font-weight:700}
+.announcement p,.management-callout p{font-size:var(--type-control);line-height:var(--leading-copy)}
+.policy h3{font-family:var(--font-display);font-size:var(--type-control);line-height:var(--leading-ui);font-weight:600}
+.policy p{font-size:var(--type-meta);line-height:var(--leading-copy)}
+.trend-col span{font-size:var(--type-utility);line-height:var(--leading-ui)}
+
+/* Tables and searchable data */
+.toolbar,.ops-live{font-size:var(--type-meta);line-height:var(--leading-ui)}
+.ops-search input{font-size:var(--type-control)}
+th,html[data-portal-role="msp"] th{font-size:var(--type-utility);line-height:var(--leading-ui);font-weight:700}
+td,html[data-portal-role="msp"] td{font-size:var(--type-control);line-height:var(--leading-copy)}
+td small,.client-table-avatar small{font-size:var(--type-meta);line-height:var(--leading-ui)}
+
+/* PBX and connector operations */
+.ops-health-ring{font-size:20px}
+.ops-health h3{font-family:var(--font-display);font-size:var(--type-heading-sm);line-height:var(--leading-tight);font-weight:700}
+.ops-health p,.ops-template>p,.ops-preview p{font-size:var(--type-control);line-height:var(--leading-copy)}
+.ops-field-list code{font-size:var(--type-meta);line-height:var(--leading-ui)}
+.ops-field-list small,.ops-field-list b{font-size:var(--type-utility);line-height:var(--leading-ui)}
+.ops-field-group,.ops-preview span{font-size:var(--type-utility);line-height:var(--leading-ui);font-weight:700}
+.ops-template textarea{font-size:var(--type-control);line-height:var(--leading-copy)}
+
+/* Settings overview and detailed configuration */
+.settings-category-head h2{font-family:var(--font-display);font-size:var(--type-heading-lg);line-height:var(--leading-tight);font-weight:700}
+.settings-category-head p{font-size:var(--type-control);line-height:var(--leading-copy)}
+.settings-lock,.settings-meta{font-size:var(--type-utility);line-height:var(--leading-ui);font-weight:600}
+.settings-copy strong{font-family:var(--font-display);font-size:var(--type-body);line-height:var(--leading-ui);font-weight:700}
+.settings-copy small{font-size:var(--type-meta);line-height:var(--leading-copy)}
+html[data-portal-role="msp"] .settings-switch-row strong{font-size:var(--type-body);line-height:var(--leading-ui);font-weight:600}
+html[data-portal-role="msp"] .settings-switch-row small{font-size:var(--type-meta);line-height:var(--leading-copy)}
+html[data-portal-role="msp"] .settings-form-grid label{font-size:var(--type-meta);line-height:var(--leading-ui);font-weight:700}
+html[data-portal-role="msp"] .settings-form-grid input,html[data-portal-role="msp"] .settings-form-grid select{font-family:var(--font-ui);font-size:var(--type-body);line-height:var(--leading-ui);font-weight:500}
+html[data-portal-role="msp"] .channel-card strong{font-size:var(--type-body);line-height:var(--leading-ui)}
+html[data-portal-role="msp"] .channel-card small{font-size:var(--type-meta);line-height:var(--leading-ui)}
+html[data-portal-role="msp"] .channel-card>b{font-size:var(--type-utility);line-height:var(--leading-ui)}
+html[data-portal-role="msp"] .ops-settings-card code{font-size:var(--type-meta);line-height:var(--leading-ui)}
+html[data-portal-role="msp"] .ops-settings-card table small{font-size:var(--type-meta);line-height:var(--leading-ui)}
+
+/* Authentication and modal forms */
+.login-card h1{font-family:var(--font-display);font-size:30px;line-height:1.2;font-weight:800}
+.login-card>p{font-size:var(--type-body);line-height:1.6}
+.microsoft,.demo-logins button{font-size:var(--type-control);line-height:var(--leading-ui)}
+.divider,.login-card>small,.trust{font-size:var(--type-meta);line-height:var(--leading-copy)}
+.modal h2{font-family:var(--font-display);font-size:24px;line-height:var(--leading-tight);font-weight:800}
+.modal label{font-size:var(--type-control);line-height:var(--leading-ui)}
+.modal input,.modal select,.modal textarea{font-size:var(--type-body);line-height:var(--leading-copy)}
+.upload small{font-size:var(--type-meta)}
+
+/* Remove the formerly separate MSP font stack. */
+html[data-portal-role="msp"] body{font-family:var(--font-ui)}
+html[data-portal-role="msp"] .brand strong,html[data-portal-role="msp"] h1,html[data-portal-role="msp"] h2,html[data-portal-role="msp"] h3{font-family:var(--font-display)}
+html[data-portal-role="msp"] .brand strong{font-size:15px;line-height:var(--leading-tight);font-weight:700}
+
+@media(max-width:720px){
+  :root{--type-title:28px}
+  .login-card h1{font-size:27px}
+}
