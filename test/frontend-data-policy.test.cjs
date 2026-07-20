@@ -43,4 +43,10 @@ test('production source gates hardcoded portfolio and operational state behind d
   assert.match(app,/dataPolicy\.loadOperational\('northstar-demo-state'/);
   assert.match(app,/Object\.assign\(c,collections\)/);
   assert.match(app,/portalApi\.listCompanies\(\)/);
+  assert.match(app,/portalApi\.listIntegrations\(\)/);
+  assert.match(app,/management:managementLive/);
+  assert.match(app,/clients:clientsLive/);
+  assert.match(app,/revenue:revenueLive/);
+  assert.match(app,/integrations:integrationsLive/);
+  assert.match(app,/Historical trend<\/span><strong>Not yet collected/);
 });
