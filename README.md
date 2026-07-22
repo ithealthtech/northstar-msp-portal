@@ -8,7 +8,37 @@ Northstar is a unified MSP portal with three isolated experiences:
 - Client administration
 - Internal MSP portfolio and operations management
 
-![Northstar MSP Portal secure workspace](docs/assets/northstar-msp-dashboard.png)
+## Product tour
+
+### Secure sign-in
+
+Microsoft Entra authentication is the production entry point, with local preview roles available only when explicit development demo mode is enabled.
+
+![Northstar MSP Portal secure sign-in](docs/assets/northstar-login.png)
+
+### MSP command center
+
+The MSP landing area summarizes the authorized client portfolio, recurring revenue, managed users, SLA attainment, client health, and current operational priorities.
+
+![Northstar MSP command center](docs/assets/northstar-msp-command-center.png)
+
+### Client administration
+
+Client administrators receive a company-scoped workspace for service activity, health, billing, approvals, documents, and common support actions.
+
+![Northstar client administration dashboard](docs/assets/northstar-dashboard.png)
+
+### People and access governance
+
+Company administrators can review portal membership, roles, MFA enrollment, access controls, and activity within their assigned tenant.
+
+![Northstar people and access governance](docs/assets/northstar-people-access.png)
+
+### Integration control
+
+Internal MSP administrators can inspect server-reported vendor connections, synchronization state, visibility, and integration health without exposing credentials to client portals.
+
+![Northstar integration control center](docs/assets/northstar-integrations.png)
 
 The visual portal remains a working prototype, but the project now includes a real multi-tenant server foundation with persistent data, server-resolved memberships, portfolio scoping, entitlements, protected APIs, and durable audit events.
 
