@@ -32,8 +32,8 @@ function canonicalRole(value){const role=String(value||'editor').toLowerCase();r
 function canonicalStatus(value){const status=String(value||'active').toLowerCase();return status==='disabled'?'disabled':'active'}
 function validEmail(value){return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(String(value||''))}
 
-function createSignaturePortal({db,production,signature={},json,readJsonBody}){
-  seed(db,signature);
+function createSignaturePortal({db,production,signature={sessionHours:12,allowDefaultAdmin:false},json,readJsonBody}){
+  seed(db);
   const loginAttempts=new Map();
   function loginAllowed(key){const now=Date.now(),windowMs=15*60*1000,limit=10;let entry=loginAttempts.get(key);if(!entry||now-entry.startedAt>=windowMs){entry={startedAt:now,count:0};loginAttempts.set(key,entry)}entry.count++;if(loginAttempts.size>2000)for(const[k,v]of loginAttempts)if(now-v.startedAt>=windowMs)loginAttempts.delete(k);return entry.count<=limit}
   function sameOrigin(req){const fetchSite=String(req.headers['sec-fetch-site']||'').toLowerCase();if(fetchSite==='cross-site')return false;const origin=req.headers.origin;if(!origin)return true;try{return new URL(origin).host===String(req.headers.host||'')}catch{return false}}
@@ -217,7 +217,7 @@ function createSignaturePortal({db,production,signature={},json,readJsonBody}){
     return json(res,405,{error:{code:'METHOD_NOT_ALLOWED',message:'Method not allowed.'}},requestId);
   };
 }
-function seed(db,signature={}){
+function seed(db){
   if(!db.prepare('SELECT COUNT(*) AS count FROM signature_templates').get().count)for(const [name,patch] of defaultTemplates)db.prepare('INSERT INTO signature_templates(id,name,template_json) VALUES (?,?,?)').run(randomUUID(),name,JSON.stringify(patch));
 }
 module.exports={createSignaturePortal};

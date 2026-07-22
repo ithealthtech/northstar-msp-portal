@@ -2,7 +2,7 @@
 
 This package is designed to run as a web-based MSP portal with a Node.js server, SQLite by default, and a migration path for PostgreSQL or SQL Server.
 
-Node.js 24 or later is required. Deployment hosts and build agents must use the same major runtime because the supported encrypted backup path depends on the Node 24 `node:sqlite` backup API.
+Node.js 24.x and npm 11 are required. Deployment hosts and build agents must use the same major runtime because the supported encrypted backup path depends on the Node 24 `node:sqlite` backup API.
 
 ## Deployment profiles
 
@@ -40,7 +40,7 @@ The application data model now includes:
 
 ## Basic install
 
-1. Run `npm install`.
+1. Run `npm ci`.
 2. Copy `.env.example` to `.env.local`.
 3. Configure Microsoft Entra app registration values.
 4. Run `npm run db:init`.
@@ -48,9 +48,8 @@ The application data model now includes:
 6. Run `npm run smoke`.
 7. Run `npm run package:install`.
 8. Copy the generated Northstar release package to the server.
-9. On the server, run `npm install --omit=dev`.
-10. Run `npm run db:init`.
-11. Start with `npm start` or configure a service wrapper.
+9. On the server, run `npm ci --omit=dev`.
+10. Start with `npm start` or configure a service wrapper. `npm start` forces production mode and automatically applies pending migrations transactionally.
 
 ## Environment configuration
 
@@ -63,6 +62,29 @@ Choose the documented regional API origin with `CONNECTWISE_BASE_URL`. North Ame
 After configuration, call `GET /api/internal/integrations/connectwise/sync` as an MSP administrator to confirm `configured: true`, then run a controlled first `POST` and review imported onboarding companies, ticket mappings, audit events, skipped-ticket counts, and the integration sync history before enabling a schedule.
 
 Create `.env.local` beside `server.cjs` in the installed package.
+
+### Configuration reference
+
+| Variable                      | Production requirement                                                                                                               |
+| ----------------------------- | ------------------------------------------------------------------------------------------------------------------------------------ |
+| `HOST`, `PORT`                | Required listener address and port. Use `127.0.0.1` behind a local reverse proxy or `0.0.0.0` only when network controls require it. |
+| `PUBLIC_URL`                  | HTTPS public origin used by operators and monitoring.                                                                                |
+| `LOG_LEVEL`                   | `debug`, `info`, `warn`, `error`, `fatal`, or `silent`; use `info` in production.                                                    |
+| `TRUST_PROXY`                 | Enable only when a trusted proxy replaces `X-Forwarded-For`.                                                                         |
+| `DATABASE_PATH`               | Explicit absolute path on persistent storage. SQLite supports one application instance.                                              |
+| `BACKUP_DIRECTORY`            | Explicit absolute path outside `dist`; must not contain the live database.                                                           |
+| `NORTHSTAR_BACKUP_KEY`        | Required 32-byte base64 or 64-character hexadecimal key from the production secret manager.                                          |
+| `BACKUP_RETENTION_DAYS`       | Integer from 7 to 3650.                                                                                                              |
+| `RETENTION_AUDIT_DAYS`        | Integer from 365 to 36500.                                                                                                           |
+| `RETENTION_SYNC_DAYS`         | Integer from 30 to 36500.                                                                                                            |
+| `RETENTION_SECURITY_DAYS`     | Integer from 30 to 36500.                                                                                                            |
+| `DEMO_MODE`, `SEED_DEMO_DATA` | Must both be `false`; production startup rejects either flag.                                                                        |
+| `SIGNATURE_ONLY`              | Optional standalone signature application mode.                                                                                      |
+| `SIGNATURE_SESSION_HOURS`     | Integer from 1 to 168.                                                                                                               |
+| `ENTRA_*`                     | Required for the MSP portal; see the Entra section. Redirect URI must use HTTPS.                                                     |
+| `CONNECTWISE_*`               | Optional. Client ID and secret must be configured together; production accepts only approved ConnectWise origins.                    |
+
+Invalid booleans, paths, ports, URLs, retention values, log levels, or incomplete credential pairs stop startup with exit code 1 and a structured `startup_failed` log event.
 
 ## Signature portal production mode
 
@@ -81,7 +103,11 @@ Recommended standalone signature `.env.local`:
 NODE_ENV=production
 HOST=127.0.0.1
 PORT=4173
-DATABASE_PATH=./data/signature-portal.db
+PUBLIC_URL=https://signatures.example.com
+LOG_LEVEL=info
+DATABASE_PATH=C:\ProgramData\Northstar\data\signature-portal.db
+BACKUP_DIRECTORY=C:\ProgramData\Northstar\backups
+NORTHSTAR_BACKUP_KEY=<32-byte-key-from-secret-manager>
 SEED_DEMO_DATA=false
 DEMO_MODE=false
 TRUST_PROXY=true
@@ -106,7 +132,11 @@ Required production values:
 NODE_ENV=production
 HOST=127.0.0.1
 PORT=4173
-DATABASE_PATH=./data/northstar.db
+PUBLIC_URL=https://portal.example.com
+LOG_LEVEL=info
+DATABASE_PATH=C:\ProgramData\Northstar\data\northstar.db
+BACKUP_DIRECTORY=C:\ProgramData\Northstar\backups
+NORTHSTAR_BACKUP_KEY=<32-byte-key-from-secret-manager>
 SEED_DEMO_DATA=false
 DEMO_MODE=false
 TRUST_PROXY=true
@@ -161,6 +191,7 @@ Before handing the package to users, run:
 
 ```powershell
 npm run smoke
+npm run startup:production
 ```
 
 The smoke test builds browser assets, boots the server on a random local port, verifies `/api/health`, verifies static portal delivery, verifies `portal-api.js`, and saves an MSP install profile through the real HTTP API.
@@ -168,10 +199,22 @@ The smoke test builds browser assets, boots the server on a random local port, v
 After deployment, also verify:
 
 ```powershell
-Invoke-RestMethod https://portal.example.com/api/health
+Invoke-RestMethod https://portal.example.com/api/health/live
+Invoke-RestMethod https://portal.example.com/api/health/ready
 ```
 
-Expected database result: `ready`.
+Liveness returns `200` when the process can serve HTTP. Readiness returns `503 not_ready` until the database is accessible, built assets exist, backup encryption is configured, and at least one successful backup event has been recorded; only then should a load balancer route customer traffic.
+
+## Troubleshooting
+
+- `startup_failed`: parse the structured JSON log and correct the named environment variable. Never paste the full environment or secret values into tickets.
+- `Production assets are missing`: run `npm run build` before `npm start`, or deploy the complete install package.
+- `Database is already leased`: verify no Northstar process is running before removing a stale `.running.json` lease. Never remove a lease for a live PID.
+- `not_ready` with `backupRecorded: false`: run the scheduled encrypted backup in the target environment, verify it, and confirm the operations runbook evidence.
+- `EADDRINUSE`: stop the orphaned approved Northstar process or choose an unused `PORT`; do not kill unrelated listeners.
+- Entra sign-in failure: confirm the HTTPS redirect URI, API audience, delegated scope, client application ID, app role, and provisioned object ID all match.
+- ConnectWise `rate_limited`: wait until the reported reset time and reduce synchronization frequency; do not retry in a tight loop.
+- Shutdown timeout: inspect open upstream connections and service-wrapper stop behavior. The server drains idle connections and forcibly closes remaining HTTP connections after five seconds.
 
 ## First-run MSP setup
 

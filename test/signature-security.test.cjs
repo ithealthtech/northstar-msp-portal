@@ -8,7 +8,7 @@ let application,server,baseUrl;
 
 test.before(async()=>{
   const config={
-    production:true,demoMode:false,signatureOnly:true,port:0,host:'127.0.0.1',trustProxy:false,
+    production:true,demoMode:false,signatureOnly:true,port:0,host:'127.0.0.1',trustProxy:false,logLevel:'silent',
     staticRoot:require('node:path').join(__dirname,'..','dist'),sourceRoot:require('node:path').join(__dirname,'..'),
     databasePath:':memory:',seedDemoData:false,signature:{sessionHours:12,allowDefaultAdmin:false},
     auth:{clientId:'',tenantId:'',audience:'',redirectUri:'https://portal.example',apiScope:'',allowedClientId:''}
