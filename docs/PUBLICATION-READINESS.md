@@ -1,7 +1,7 @@
 # Public repository readiness audit
 
-Audit date: 2026-07-19  
-Version: 0.2.0
+Audit date: 2026-07-22
+Version: 1.0.0
 
 ## Recommendation
 
@@ -36,7 +36,7 @@ Version: 0.2.0
 
 ## Owner review required before production
 
-- Choose and document the repository's software license. A public repository without a license grants no general reuse rights.
+- Obtain owner approval for the proprietary license and public repository visibility.
 - Configure the production Entra application, redirect URI, API audience, delegated scope, app roles, and provisioned identities.
 - Select a supported production topology, TLS termination, secret store, database backup process, monitoring destination, and retention policy.
 - Complete privacy, regulatory, vendor, and contractual review for customer data and integrations.

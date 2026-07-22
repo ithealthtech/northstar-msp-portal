@@ -417,7 +417,7 @@ body.signature-surface {
   background: #dce9ff;
   border-color: #cbdcff;
 }
-.portal-surface .nav-button em { color: #5d6e84; background: #e8eef6; }
+.portal-surface .nav-button em { color: #52647a; background: #e8eef6; }
 .portal-surface .support-card {
   border-color: #cfe0f7;
   background: linear-gradient(145deg, #edf4ff, #edf9f7);
@@ -535,7 +535,7 @@ html[data-portal-role="msp"] .portal-surface .btn.secondary { color: #4d6077; ba
 html[data-portal-role="msp"] .portal-surface .filter.active,
 html[data-portal-role="msp"] .portal-surface .btn.primary { color: #fff; background: linear-gradient(135deg, #1d4ed8, #2563eb); border-color: #2563eb; }
 html[data-portal-role="msp"] .portal-surface .btn.text { color: #1d5ca8; }
-html[data-portal-role="msp"] .portal-surface th { color: #718198; background: #f7f9fc; border-color: #e2eaf3; }
+html[data-portal-role="msp"] .portal-surface th { color: #52647a; background: #f7f9fc; border-color: #e2eaf3; }
 html[data-portal-role="msp"] .portal-surface td { color: #4d6077; }
 html[data-portal-role="msp"] .portal-surface .management-callout {
   color: #173252;

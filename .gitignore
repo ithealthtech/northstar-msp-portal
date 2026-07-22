@@ -24,6 +24,8 @@ dist/
 release/
 coverage/
 .nyc_output/
+test-results/
+playwright-report/
 *.zip
 *.tgz
 

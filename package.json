@@ -1,1 +1,69 @@
-{"name":"northstar-msp-portal","private":true,"version":"0.2.0","description":"White-label multi-tenant MSP client and operations portal","type":"module","engines":{"node":">=24.0.0"},"scripts":{"dev":"node scripts/dev.cjs","dev:ui":"vite --host 127.0.0.1","build":"vite build && node copy-static.cjs","start":"node --env-file-if-exists=.env.local server.cjs","db:init":"node --env-file-if-exists=.env.local scripts/init-db.cjs","db:retention":"node --env-file-if-exists=.env.local scripts/run-retention.cjs","backup:create":"node --env-file-if-exists=.env.local scripts/backup-database.cjs","backup:verify":"node --env-file-if-exists=.env.local scripts/verify-backup.cjs","backup:restore":"node --env-file-if-exists=.env.local scripts/restore-database.cjs","demo:clear":"node --env-file-if-exists=.env.local scripts/clear-demo-data.cjs","demo:bootstrap":"node --env-file-if-exists=.env.local scripts/bootstrap-interactive-demo.cjs","user:provision":"node --env-file-if-exists=.env.local scripts/provision-user.cjs","signature:reset-admin":"node --env-file-if-exists=.env.local scripts/reset-signature-admin.cjs","smoke":"npm run build && node scripts/smoke-test.cjs","package:install":"npm run build && node scripts/create-install-package.cjs","test":"node --test test/*.test.cjs","test:e2e":"npm run build && playwright test","audit:dependencies":"npm audit --omit=dev --audit-level=high"},"dependencies":{"@azure/msal-browser":"4.26.0","jose":"6.2.4","vite":"8.1.5"},"devDependencies":{"@axe-core/playwright":"4.12.1","@playwright/test":"1.61.1"}}
+{
+  "name": "northstar-msp-portal",
+  "version": "1.0.0",
+  "private": true,
+  "description": "White-label multi-tenant MSP client and operations portal",
+  "type": "module",
+  "license": "SEE LICENSE IN LICENSE",
+  "author": "IT Health Tech",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/ithealthtech/northstar-msp-portal.git"
+  },
+  "homepage": "https://github.com/ithealthtech/northstar-msp-portal#readme",
+  "bugs": {
+    "url": "https://github.com/ithealthtech/northstar-msp-portal/issues"
+  },
+  "keywords": [
+    "msp",
+    "client-portal",
+    "connectwise",
+    "multi-tenant"
+  ],
+  "engines": {
+    "node": ">=24.0.0 <25"
+  },
+  "packageManager": "npm@11.16.0",
+  "scripts": {
+    "dev": "node scripts/dev.cjs",
+    "dev:ui": "vite --host 127.0.0.1",
+    "start": "node --env-file-if-exists=.env.local scripts/start-production.cjs",
+    "start:development": "node --env-file-if-exists=.env.local server.cjs",
+    "build": "vite build && node copy-static.cjs",
+    "lint": "eslint .",
+    "format:check": "prettier --check package.json eslint.config.js tsconfig.json types/*.d.ts .github/workflows/ci.yml README.md DEPLOYMENT.md CHANGELOG.md RELEASE.md SECURITY.md CONTRIBUTING.md docs/*.md server/logger.cjs scripts/start-production.cjs scripts/production-startup-check.cjs test/release-readiness.test.cjs",
+    "typecheck": "tsc -p tsconfig.json",
+    "pretest": "npm run build",
+    "test": "node --test test/*.test.cjs",
+    "test:e2e": "npm run build && playwright test",
+    "smoke": "npm run build && node scripts/smoke-test.cjs",
+    "startup:production": "npm run build && node scripts/production-startup-check.cjs",
+    "verify": "npm run lint && npm run format:check && npm run typecheck && npm test && npm run smoke && npm run startup:production",
+    "audit:dependencies": "npm audit --omit=dev --audit-level=high",
+    "audit:all": "npm audit --audit-level=high",
+    "db:init": "node --env-file-if-exists=.env.local scripts/init-db.cjs",
+    "db:retention": "node --env-file-if-exists=.env.local scripts/run-retention.cjs",
+    "backup:create": "node --env-file-if-exists=.env.local scripts/backup-database.cjs",
+    "backup:verify": "node --env-file-if-exists=.env.local scripts/verify-backup.cjs",
+    "backup:restore": "node --env-file-if-exists=.env.local scripts/restore-database.cjs",
+    "demo:clear": "node --env-file-if-exists=.env.local scripts/clear-demo-data.cjs",
+    "demo:bootstrap": "node --env-file-if-exists=.env.local scripts/bootstrap-interactive-demo.cjs",
+    "user:provision": "node --env-file-if-exists=.env.local scripts/provision-user.cjs",
+    "signature:reset-admin": "node --env-file-if-exists=.env.local scripts/reset-signature-admin.cjs",
+    "package:install": "npm run build && node scripts/create-install-package.cjs"
+  },
+  "dependencies": {
+    "jose": "6.2.4"
+  },
+  "devDependencies": {
+    "@axe-core/playwright": "4.12.1",
+    "@eslint/js": "10.0.1",
+    "@playwright/test": "1.61.1",
+    "@types/node": "24.13.3",
+    "eslint": "10.7.0",
+    "globals": "17.7.0",
+    "prettier": "3.9.6",
+    "typescript": "7.0.2",
+    "vite": "8.1.5"
+  }
+}

@@ -4,6 +4,7 @@ const path=require('node:path');
 const {randomUUID}=require('node:crypto');
 const {URL}=require('node:url');
 const {createSignaturePortal}=require('./signature-portal.cjs');
+const {createLogger}=require('./logger.cjs');
 
 const contentTypes={'.html':'text/html; charset=utf-8','.css':'text/css; charset=utf-8','.js':'application/javascript; charset=utf-8','.json':'application/json; charset=utf-8','.svg':'image/svg+xml','.png':'image/png','.jpg':'image/jpeg','.jpeg':'image/jpeg','.ico':'image/x-icon'};
 
@@ -22,7 +23,7 @@ function readJsonBody(req,{limit=1048576}={}){
   });
 }
 
-function createPortalHandler({config,repository,authenticate,connectWiseSync=null}){
+function createPortalHandler({config,repository,authenticate,connectWiseSync=null,logger=createLogger({level:'silent'})}){
   const root=fs.existsSync(path.join(config.staticRoot,'index.html'))?config.staticRoot:config.sourceRoot;
   const sourceMode=root===config.sourceRoot;
   const sourcePublicFiles=new Set(['index.html','app.js','auth.js','portal-api.js','portal-store.js','styles.css','management.css','settings.css','nav-sections.css','hierarchy.css','ops-settings.css','typography.css','interactions.css','enterprise.css','signature.html','signature.css','signature.js','admin.html','admin.css','admin.js','setup.html','setup.css','setup.js']);
@@ -54,6 +55,7 @@ function createPortalHandler({config,repository,authenticate,connectWiseSync=nul
   }
   return async function handler(req,res){
     const requestId=randomUUID();const url=new URL(req.url||'/','http://portal.local');let principal=null,session=null;
+    const startedAt=Date.now();res.once('finish',()=>logger.info?.('http_request',{requestId,method:req.method,path:url.pathname,statusCode:res.statusCode,durationMs:Date.now()-startedAt}));
     try{
       if(url.pathname.startsWith('/api/')&&!rateLimit(clientIp(req,config.trustProxy)||'unknown'))return json(res,429,{error:{code:'RATE_LIMITED',message:'Too many requests. Try again shortly.'}},requestId,{'Retry-After':'60'});
       if(url.pathname==='/auth-config.js'){
@@ -63,6 +65,14 @@ function createPortalHandler({config,repository,authenticate,connectWiseSync=nul
       if(url.pathname==='/api/health'){
         if(req.method!=='GET')return json(res,405,{error:{code:'METHOD_NOT_ALLOWED',message:'Method not allowed.'}},requestId,{Allow:'GET'});
         repository.db.prepare('SELECT 1').get();const operations=repository.getOperationalHealth();const backupConfigured=Boolean(config.backup?.encryptionKey);const status=config.production&&(!backupConfigured||!operations.backup)?'degraded':'ok';return json(res,200,{status,service:'northstar-msp-portal',database:'ready',operations:{backupConfigured,lastBackupAt:operations.backup||null,lastRestoreVerificationAt:operations.restore_verification||null,lastRetentionAt:operations.retention||null},time:new Date().toISOString()},requestId)
+      }
+      if(url.pathname==='/api/health/live'){
+        if(req.method!=='GET')return json(res,405,{error:{code:'METHOD_NOT_ALLOWED',message:'Method not allowed.'}},requestId,{Allow:'GET'});
+        return json(res,200,{status:'ok',service:'northstar-msp-portal',time:new Date().toISOString()},requestId);
+      }
+      if(url.pathname==='/api/health/ready'){
+        if(req.method!=='GET')return json(res,405,{error:{code:'METHOD_NOT_ALLOWED',message:'Method not allowed.'}},requestId,{Allow:'GET'});
+        repository.db.prepare('SELECT 1').get();const operations=repository.getOperationalHealth();const checks={database:true,productionAssets:fs.existsSync(path.join(config.staticRoot,'index.html')),backupConfigured:Boolean(config.backup?.encryptionKey),backupRecorded:Boolean(operations.backup)};const ready=checks.database&&checks.productionAssets&&(!config.production||(checks.backupConfigured&&checks.backupRecorded));return json(res,ready?200:503,{status:ready?'ready':'not_ready',service:'northstar-msp-portal',checks,time:new Date().toISOString()},requestId);
       }
       if(url.pathname.startsWith('/api/signature/')){
         const handled=await signaturePortal(req,res,url,requestId);
@@ -182,8 +192,8 @@ function createPortalHandler({config,repository,authenticate,connectWiseSync=nul
       return serve(req,res,url.pathname,requestId);
     }catch(error){
       const status=Number(error.status)||500;const code=error.code||'INTERNAL_ERROR';
-      try{audit(req,requestId,session,{action:'request.denied',resourceType:'route',outcome:status>=500?'failure':'denied',reasonCode:code,actorEmail:principal?.email,metadata:{path:url.pathname,method:req.method}})}catch(auditError){console.error('Audit write failed',auditError)}
-      if(status>=500)console.error(JSON.stringify({requestId,error:error.message,code,path:url.pathname}));
+      try{audit(req,requestId,session,{action:'request.denied',resourceType:'route',outcome:status>=500?'failure':'denied',reasonCode:code,actorEmail:principal?.email,metadata:{path:url.pathname,method:req.method}})}catch(auditError){logger.error?.('audit_write_failed',{requestId,error:auditError.message})}
+      if(status>=500)logger.error?.('request_failed',{requestId,error:error.message,code,path:url.pathname});
       return json(res,status,{error:{code,message:error.expose||status<500?error.message:'The request could not be completed.',requestId}},requestId)
     }
   };

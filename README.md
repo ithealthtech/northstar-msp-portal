@@ -1,6 +1,6 @@
 ﻿# Northstar MSP Portal
 
-Current version: **0.2.0**
+Current version: **1.0.0**
 
 Northstar is a unified MSP portal with three isolated experiences:
 
@@ -40,7 +40,7 @@ Internal MSP administrators can inspect server-reported vendor connections, sync
 
 ![Northstar integration control center](docs/assets/northstar-integrations.png)
 
-The visual portal remains a working prototype, but the project now includes a real multi-tenant server foundation with persistent data, server-resolved memberships, portfolio scoping, entitlements, protected APIs, and durable audit events.
+Version 1.0.0 releases the server-backed authentication, tenant isolation, company administration, records, approvals, audit, operational safeguards, and ConnectWise synchronization foundation. Modules without released server APIs remain hidden in production; explicit local demo mode retains design previews without representing them as operational integrations.
 
 ## Architecture
 
@@ -93,7 +93,7 @@ npm install
 Copy-Item .env.example .env.local
 npm run build
 npm run db:init
-npm start
+npm run start:development
 ```
 
 Open `http://127.0.0.1:4173`.
@@ -143,6 +143,8 @@ Supported database roles are `client_user`, `client_admin`, `client_owner`, `msp
 ## API foundation
 
 - `GET /api/health`
+- `GET /api/health/live`
+- `GET /api/health/ready`
 - `GET /api/session`
 - `GET /api/profile`
 - `PATCH /api/profile`
@@ -190,6 +192,7 @@ npm run test:e2e
 npm run smoke
 npm run build
 npm run audit:dependencies
+npm run verify
 ```
 
 The test suite verifies client isolation, company-claim rejection, unknown-user denial, scoped MSP portfolios, MSP owner access, role permissions, API method handling, JSON API fallthrough behavior, durable denial auditing, tenant-isolated company settings, invitation and membership lifecycle controls, last-administrator protection, document workflows, personal-profile persistence, approval ownership and terminal decisions, and install-profile persistence.
@@ -197,6 +200,10 @@ The test suite verifies client isolation, company-claim rejection, unknown-user 
 The Playwright gate runs in system Chrome and verifies automated WCAG 2 A/AA rules on the sign-in screen and all three role dashboards, keyboard skip navigation, page-heading focus, modal focus trapping and restoration, mobile navigation state, and horizontal overflow. See [Accessibility](docs/ACCESSIBILITY.md) for the supported baseline and manual release checklist.
 
 The smoke test builds the browser assets, starts the server on a random local port with a temporary SQLite database, verifies `/api/health`, verifies static portal delivery, verifies `portal-api.js`, and saves an install profile through the real HTTP API.
+
+`npm run startup:production` starts the built application with synthetic production configuration and a temporary database, verifies liveness, confirms readiness remains blocked before backup evidence exists, verifies static delivery, and shuts down cleanly. It does not run against production data or credentials.
+
+See [Deployment](DEPLOYMENT.md), [release checklist](RELEASE.md), [changelog](CHANGELOG.md), and [operations runbook](docs/OPERATIONS-RUNBOOK.md) before handling customer data.
 
 ## Production database path
 

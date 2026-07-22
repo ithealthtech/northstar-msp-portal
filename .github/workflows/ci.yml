@@ -19,7 +19,12 @@ jobs:
           cache: npm
       - run: npm ci
       - run: npm audit --omit=dev --audit-level=high
+      - run: npm run lint
+      - run: npm run format:check
+      - run: npm run typecheck
       - run: npm test
       - run: npm run build
       - run: npm run smoke
+      - run: npm run startup:production
       - run: npm run test:e2e
+      - run: npm run package:install
