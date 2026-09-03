@@ -1,0 +1,145 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="Troubleshooting Northstar MSP Portal: sign-in denials, missing clients, demo mode, ConnectWise sync, and how to report an issue.">
+  <meta name="theme-color" content="#0b0a17">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; img-src 'self' data:; style-src 'self'; script-src 'self'; connect-src 'none'; object-src 'none'; base-uri 'self'; form-action 'none'">
+  <title>Support &middot; Northstar MSP Portal</title>
+  <link rel="stylesheet" href="assets/site.css">
+  <script src="assets/site.js" defer></script>
+</head>
+<body>
+  <a class="skip-link" href="#main">Skip to content</a>
+  <header class="site-header">
+    <div class="nav-shell">
+      <a class="brand" href="index.html" aria-label="Northstar MSP Portal documentation home">
+        <span class="brand-mark" aria-hidden="true">N</span>
+        <span>Northstar</span>
+      </a>
+      <nav class="site-nav" data-site-nav aria-label="Primary navigation">
+        <a href="index.html">Overview</a>
+        <a href="security.html">Security</a>
+        <a href="guide.html">Deploy</a>
+        <a href="support.html" aria-current="page">Support</a>
+        <a href="https://github.com/ithealthtech/northstar-msp-portal">GitHub</a>
+      </nav>
+      <div class="nav-actions">
+        <button class="icon-button" type="button" data-doc-theme-toggle aria-label="Use light documentation theme">&#9728;</button>
+        <button class="menu-button" type="button" data-menu-toggle aria-label="Open navigation" aria-expanded="false">&#9776;</button>
+      </div>
+    </div>
+  </header>
+
+  <main id="main">
+    <section class="page-hero">
+      <div class="container">
+        <p class="eyebrow">Support</p>
+        <h1>Troubleshooting</h1>
+        <p class="hero-copy">Most access problems trace back to one thing: identity is not authorization. Start here.</p>
+      </div>
+    </section>
+
+    <section class="section">
+      <div class="container" data-filter-list>
+        <div class="section-heading">
+          <p class="section-kicker">Symptom finder</p>
+          <h2>Search troubleshooting</h2>
+          <p>Type a symptom, an environment variable, or an error code.</p>
+        </div>
+        <div class="filter-bar">
+          <label class="sr-only" for="support-search">Search troubleshooting</label>
+          <input class="search-input" id="support-search" type="search" data-filter-input placeholder="Try &quot;sign in&quot;, &quot;404&quot;, &quot;demo mode&quot;, or &quot;ConnectWise&quot;">
+        </div>
+        <div class="accordion">
+          <details data-filter-item>
+            <summary>A valid Entra user signs in but sees nothing</summary>
+            <div>
+              <p>This is the expected result for an unprovisioned user. Northstar does not create users just-in-time from an email address or a company claim.</p>
+              <p>Provision the Entra tenant/object pair first &mdash; see <a href="guide.html#provision">provisioning</a>. Confirm the database identity is <strong>active</strong> and has either a client membership or an MSP platform assignment.</p>
+            </div>
+          </details>
+          <details data-filter-item>
+            <summary>An MSP administrator cannot see all clients</summary>
+            <div>
+              <p>By design. An MSP role does not implicitly grant the whole portfolio. Either set <code>PORTAL_PLATFORM_SCOPE=all</code> for that identity, or assign their clients explicitly in <code>msp_company_scopes</code>.</p>
+            </div>
+          </details>
+          <details data-filter-item>
+            <summary>A client user gets 404 for a record that exists</summary>
+            <div>
+              <p>Also by design. When a client user requests a resource belonging to another company, Northstar returns <strong>not-found</strong> rather than forbidden, so the response does not confirm that the other company's record exists.</p>
+              <p>If the user should have access, check their company membership rather than the record.</p>
+            </div>
+          </details>
+          <details data-filter-item>
+            <summary>The demo role buttons are missing or ignored</summary>
+            <div>
+              <p>Preview roles only work under <code>file://</code> or an explicitly enabled, unconfigured local demo. Once Entra is configured, preview buttons and saved preview roles are ignored entirely.</p>
+              <p>For the local demo, set <code>DEMO_MODE=true</code> and <code>SEED_DEMO_DATA=true</code> in <code>.env.local</code> and serve from <code>127.0.0.1</code>. The demo authorization header is rejected for non-loopback callers.</p>
+            </div>
+          </details>
+          <details data-filter-item>
+            <summary>Production refuses to start</summary>
+            <div>
+              <p>Production startup rejects <code>DEMO_MODE=true</code> outright. Check that <code>DEMO_MODE</code>, <code>SEED_DEMO_DATA</code>, and <code>SIGNATURE_ALLOW_DEFAULT_ADMIN</code> are all disabled.</p>
+              <p>Readiness also stays blocked until backup evidence exists &mdash; that is intentional, not a failure. <code>npm run startup:production</code> exercises exactly this path.</p>
+            </div>
+          </details>
+          <details data-filter-item>
+            <summary>An API call returns 405 with an Allow header</summary>
+            <div>
+              <p>The path exists but the method is not supported on it. The <code>Allow</code> header lists what is. Unknown paths return a JSON <code>404</code> instead.</p>
+            </div>
+          </details>
+          <details data-filter-item>
+            <summary>ConnectWise synchronization fails or is rate-limited</summary>
+            <div>
+              <p>Confirm <code>CONNECTWISE_CLIENT_ID</code> and <code>CONNECTWISE_CLIENT_SECRET</code> are configured together, and that <code>CONNECTWISE_BASE_URL</code> is the correct regional endpoint from <code>.env.example</code> &mdash; production rejects non-ConnectWise origins.</p>
+              <p>The server honors vendor quota headers and records rate-limited and failed runs. Check the integrations view or the audit log for the recorded run rather than retrying blindly.</p>
+            </div>
+          </details>
+          <details data-filter-item>
+            <summary>A module is visible in demo but missing in production</summary>
+            <div>
+              <p>Production navigation release-gates modules without released server APIs. Explicit demo mode retains those design prototypes without representing them as operational integrations. See the current boundary on the <a href="index.html">overview</a>.</p>
+            </div>
+          </details>
+        </div>
+        <p class="empty-state" data-filter-empty>No troubleshooting entry matches that search.</p>
+      </div>
+    </section>
+
+    <section class="section">
+      <div class="container">
+        <div class="cta-panel">
+          <div>
+            <p class="section-kicker">Still blocked?</p>
+            <h2>Open a reproducible issue.</h2>
+            <p>Include the version, runtime, whether Entra is configured, the exact route and method, and the request ID from the response. Never include customer data, credentials, tokens, databases, exports, or production screenshots. Use a private advisory for a suspected vulnerability &mdash; not a public issue.</p>
+          </div>
+          <div class="button-row">
+            <a class="button button-primary" href="https://github.com/ithealthtech/northstar-msp-portal/issues/new">Open issue</a>
+            <a class="button button-danger" href="https://github.com/ithealthtech/northstar-msp-portal/security/advisories/new">Private advisory</a>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer class="site-footer">
+    <div class="container footer-grid">
+      <div>
+        <a class="brand" href="index.html"><span class="brand-mark" aria-hidden="true">N</span><span>Northstar</span></a>
+        <p class="footer-note">Unified MSP portal gated by Microsoft Entra ID, with default-deny tenant isolation.</p>
+      </div>
+      <div><h3>Learn</h3><a href="security.html">Security model</a><a href="guide.html">Deployment</a><a href="support.html">Support</a></div>
+      <div><h3>Project</h3><a href="https://github.com/ithealthtech/northstar-msp-portal">Repository</a><a href="https://github.com/ithealthtech/northstar-msp-portal/blob/main/CHANGELOG.md">Changelog</a><a href="https://github.com/ithealthtech/northstar-msp-portal/issues">Issues</a></div>
+      <div><h3>Policy</h3><a href="https://github.com/ithealthtech/northstar-msp-portal/blob/main/SECURITY.md">Security policy</a><a href="https://github.com/ithealthtech/northstar-msp-portal/blob/main/CONTRIBUTING.md">Contributing</a><p class="footer-note">&copy; <span data-current-year></span> IT Health Tech LLC</p></div>
+    </div>
+  </footer>
+
+  <div class="sr-only" aria-live="polite" data-live-region></div>
+</body>
+</html>
