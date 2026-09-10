@@ -1,0 +1,202 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="Northstar MSP Portal: a unified, Entra-gated portal with end-user self-service, client administration, and internal MSP operations, built on default-deny tenant isolation.">
+  <meta name="theme-color" content="#0b0a17">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; img-src 'self' data:; style-src 'self'; script-src 'self'; connect-src 'none'; object-src 'none'; base-uri 'self'; form-action 'none'">
+  <title>Northstar MSP Portal</title>
+  <link rel="stylesheet" href="assets/site.css">
+  <script src="assets/site.js" defer></script>
+</head>
+<body>
+  <a class="skip-link" href="#main">Skip to content</a>
+  <header class="site-header">
+    <div class="nav-shell">
+      <a class="brand" href="index.html" aria-label="Northstar MSP Portal documentation home">
+        <span class="brand-mark" aria-hidden="true">N</span>
+        <span>Northstar</span>
+      </a>
+      <nav class="site-nav" data-site-nav aria-label="Primary navigation">
+        <a href="index.html" aria-current="page">Overview</a>
+        <a href="security.html">Security</a>
+        <a href="guide.html">Deploy</a>
+        <a href="support.html">Support</a>
+        <a href="https://github.com/ithealthtech/northstar-msp-portal">GitHub</a>
+      </nav>
+      <div class="nav-actions">
+        <button class="icon-button" type="button" data-doc-theme-toggle aria-label="Use light documentation theme">&#9728;</button>
+        <button class="menu-button" type="button" data-menu-toggle aria-label="Open navigation" aria-expanded="false">&#9776;</button>
+      </div>
+    </div>
+  </header>
+
+  <main id="main">
+    <section class="hero">
+      <div class="container hero-grid">
+        <div>
+          <p class="eyebrow">Northstar MSP Portal 1.0.0</p>
+          <h1>One portal. Three audiences. No shared blast radius.</h1>
+          <p class="hero-copy">End-user self-service, client administration, and internal MSP operations in a single application &mdash; where proving who someone is never, by itself, grants access to a client's data.</p>
+          <div class="button-row">
+            <a class="button button-primary" href="guide.html">Deploy it</a>
+            <a class="button" href="security.html">Read the security model</a>
+            <a class="button" href="https://github.com/ithealthtech/northstar-msp-portal">View on GitHub</a>
+          </div>
+        </div>
+        <aside class="hero-panel" aria-label="At a glance">
+          <div class="release-line">
+            <div>
+              <span class="status-dot" aria-hidden="true"></span>
+              <span class="badge badge-success">Current release</span>
+            </div>
+            <strong>v1.0.0</strong>
+          </div>
+          <dl class="meta-list">
+            <div class="meta-row"><dt>Runtime</dt><dd>Node.js 24+</dd></div>
+            <div class="meta-row"><dt>Identity</dt><dd>Microsoft Entra ID</dd></div>
+            <div class="meta-row"><dt>Data store</dt><dd>SQLite (pilot) / PostgreSQL (planned)</dd></div>
+            <div class="meta-row"><dt>Integration</dt><dd>ConnectWise Platform</dd></div>
+            <div class="meta-row"><dt>Access default</dt><dd>Denied</dd></div>
+          </dl>
+          <div class="notice notice-warning">
+            <span aria-hidden="true">!</span>
+            <p><strong>Users are provisioned, never created just-in-time.</strong> An Entra tenant/object pair must exist in the database before first sign-in.</p>
+          </div>
+        </aside>
+      </div>
+    </section>
+
+    <section class="section-compact">
+      <div class="container grid-4" aria-label="Highlights">
+        <article class="card">
+          <div class="card-icon" aria-hidden="true">01</div>
+          <h3>Default-deny routing</h3>
+          <p>Every route enforces a named permission. Unknown paths return JSON 404s; unsupported methods return 405 with an Allow header.</p>
+        </article>
+        <article class="card">
+          <div class="card-icon" aria-hidden="true">02</div>
+          <h3>Entra is a ceiling, not a key</h3>
+          <p>The app role from Entra is intersected with the database role. The <code>company_id</code> claim is only a selection hint.</p>
+        </article>
+        <article class="card">
+          <div class="card-icon" aria-hidden="true">03</div>
+          <h3>Tenant isolation, tested</h3>
+          <p>Client users guessing another company's resource ID get a not-found response. Isolation is covered by automated tests, not convention.</p>
+        </article>
+        <article class="card">
+          <div class="card-icon" aria-hidden="true">04</div>
+          <h3>Auditable by default</h3>
+          <p>Append-only application audit events, request IDs, security headers, and durable denial auditing on every response.</p>
+        </article>
+      </div>
+    </section>
+
+    <section class="section">
+      <div class="container">
+        <div class="section-heading">
+          <p class="section-kicker">Product tour</p>
+          <h2>Three isolated experiences</h2>
+          <p>Each audience gets a workspace scoped to what they are authorized to see &mdash; enforced on the server, not hidden in the UI.</p>
+        </div>
+
+        <figure class="panel">
+          <img src="images/northstar-msp-command-center.png" alt="Northstar MSP command center summarizing client portfolio, recurring revenue, managed users, SLA attainment, and operational priorities" loading="lazy">
+          <figcaption><strong>MSP command center.</strong> The authorized client portfolio, recurring revenue, managed users, SLA attainment, client health, and current operational priorities.</figcaption>
+        </figure>
+
+        <figure class="panel">
+          <img src="images/northstar-dashboard.png" alt="Northstar client administration dashboard showing service activity, health, billing, approvals, and documents" loading="lazy">
+          <figcaption><strong>Client administration.</strong> A company-scoped workspace for service activity, health, billing, approvals, documents, and common support actions.</figcaption>
+        </figure>
+
+        <figure class="panel">
+          <img src="images/northstar-people-access.png" alt="Northstar people and access governance view showing portal membership, roles, MFA enrollment, and activity" loading="lazy">
+          <figcaption><strong>People and access governance.</strong> Company administrators review membership, roles, MFA enrollment, access controls, and activity within their assigned tenant only.</figcaption>
+        </figure>
+
+        <figure class="panel">
+          <img src="images/northstar-integrations.png" alt="Northstar integration control center showing vendor connections, synchronization state, and integration health" loading="lazy">
+          <figcaption><strong>Integration control.</strong> Internal administrators inspect vendor connections, sync state, and health &mdash; without exposing credentials to client portals.</figcaption>
+        </figure>
+      </div>
+    </section>
+
+    <section class="section">
+      <div class="container">
+        <div class="section-heading">
+          <p class="section-kicker">Request path</p>
+          <h2>What happens on every request</h2>
+        </div>
+        <div class="grid-2">
+          <ol class="step-list">
+            <li><strong>Validate the token</strong>Signature, issuer, audience, expiry, tenant, client application, delegated scope, and recognized app role.</li>
+            <li><strong>Resolve the user</strong>By provisioned Entra tenant ID and object ID &mdash; not by email.</li>
+            <li><strong>Require an active identity</strong>A database record must exist and be active.</li>
+            <li><strong>Resolve scope</strong>An active client membership or MSP platform assignment.</li>
+            <li><strong>Intersect roles</strong>The Entra app role is intersected with the database role.</li>
+            <li><strong>Enforce the permission</strong>The named permission required by that specific route.</li>
+          </ol>
+          <div>
+            <div class="code-block">
+              <pre><code>Browser / Microsoft Entra
+        |
+        v
+server/auth.cjs        token validation
+        |
+        v
+server/repository.cjs  identity, membership,
+                       portfolio, permissions
+        |
+        v
+server/database.cjs    versioned migrations
+        |
+        v
+server/app.cjs         default-deny API +
+                       static delivery</code></pre>
+            </div>
+            <div class="notice">
+              <span aria-hidden="true">i</span>
+              <p>Full detail in the <a href="security.html">security model</a>.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="section">
+      <div class="container">
+        <div class="cta-panel">
+          <div>
+            <p class="section-kicker">Before you handle customer data</p>
+            <h2>Know the current boundary.</h2>
+            <p>Version 1.0.0 ships a real backend for authentication, tenant context, company APIs, people and membership, records, approvals, install profile, settings, audit storage, and ConnectWise sync. Production navigation release-gates unfinished modules. The embedded SQLite store suits a single-node pilot &mdash; migrate to PostgreSQL with row-level security before multi-instance rollout.</p>
+          </div>
+          <div class="button-row">
+            <a class="button button-primary" href="guide.html">Deployment guide</a>
+            <a class="button" href="https://github.com/ithealthtech/northstar-msp-portal/blob/main/docs/OPERATIONS-RUNBOOK.md">Operations runbook</a>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer class="site-footer">
+    <div class="container footer-grid">
+      <div>
+        <a class="brand" href="index.html"><span class="brand-mark" aria-hidden="true">N</span><span>Northstar</span></a>
+        <p class="footer-note">Unified MSP portal gated by Microsoft Entra ID, with default-deny tenant isolation.</p>
+      </div>
+      <div><h3>Learn</h3><a href="security.html">Security model</a><a href="guide.html">Deployment</a><a href="support.html">Support</a></div>
+      <div><h3>Project</h3><a href="https://github.com/ithealthtech/northstar-msp-portal">Repository</a><a href="https://github.com/ithealthtech/northstar-msp-portal/blob/main/CHANGELOG.md">Changelog</a><a href="https://github.com/ithealthtech/northstar-msp-portal/issues">Issues</a></div>
+      <div><h3>Policy</h3><a href="https://github.com/ithealthtech/northstar-msp-portal/blob/main/SECURITY.md">Security policy</a><a href="https://github.com/ithealthtech/northstar-msp-portal/blob/main/CONTRIBUTING.md">Contributing</a><p class="footer-note">&copy; <span data-current-year></span> IT Health Tech LLC</p></div>
+    </div>
+    <div class="container">
+      <p class="footer-note">ConnectWise is a trademark of ConnectWise, LLC. This application uses the ConnectWise API but is not endorsed or certified by ConnectWise.</p>
+    </div>
+  </footer>
+
+  <div class="sr-only" aria-live="polite" data-live-region></div>
+</body>
+</html>

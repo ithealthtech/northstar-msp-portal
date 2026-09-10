@@ -1,0 +1,170 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="Deploy Northstar MSP Portal: local development, Microsoft Entra configuration, identity provisioning, ConnectWise synchronization, and verification.">
+  <meta name="theme-color" content="#0b0a17">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; img-src 'self' data:; style-src 'self'; script-src 'self'; connect-src 'none'; object-src 'none'; base-uri 'self'; form-action 'none'">
+  <title>Deployment &middot; Northstar MSP Portal</title>
+  <link rel="stylesheet" href="assets/site.css">
+  <script src="assets/site.js" defer></script>
+</head>
+<body>
+  <a class="skip-link" href="#main">Skip to content</a>
+  <header class="site-header">
+    <div class="nav-shell">
+      <a class="brand" href="index.html" aria-label="Northstar MSP Portal documentation home">
+        <span class="brand-mark" aria-hidden="true">N</span>
+        <span>Northstar</span>
+      </a>
+      <nav class="site-nav" data-site-nav aria-label="Primary navigation">
+        <a href="index.html">Overview</a>
+        <a href="security.html">Security</a>
+        <a href="guide.html" aria-current="page">Deploy</a>
+        <a href="support.html">Support</a>
+        <a href="https://github.com/ithealthtech/northstar-msp-portal">GitHub</a>
+      </nav>
+      <div class="nav-actions">
+        <button class="icon-button" type="button" data-doc-theme-toggle aria-label="Use light documentation theme">&#9728;</button>
+        <button class="menu-button" type="button" data-menu-toggle aria-label="Open navigation" aria-expanded="false">&#9776;</button>
+      </div>
+    </div>
+  </header>
+
+  <main id="main">
+    <section class="page-hero">
+      <div class="container">
+        <p class="eyebrow">Deployment</p>
+        <h1>From clone to a signed-in tenant.</h1>
+        <p class="hero-copy">Northstar has no default administrator and creates no users automatically. Expect provisioning to be an explicit step.</p>
+      </div>
+    </section>
+
+    <section class="section">
+      <div class="container docs-layout">
+        <nav class="toc" aria-label="On this page">
+          <h2>On this page</h2>
+          <a href="#local">Local development</a>
+          <a href="#entra">Microsoft Entra</a>
+          <a href="#provision">Provision an identity</a>
+          <a href="#connectwise">ConnectWise sync</a>
+          <a href="#verify">Verification</a>
+          <a href="#production">Going to production</a>
+        </nav>
+
+        <div class="docs-content">
+          <h2 id="local">Local development</h2>
+          <p>Node.js 24 or later is required &mdash; the encrypted online backup uses the <code>node:sqlite</code> backup API from that runtime baseline.</p>
+          <div class="code-block">
+            <button class="copy-button" type="button" data-copy-target="#local-setup">Copy</button>
+            <pre><code id="local-setup">npm install
+Copy-Item .env.example .env.local
+npm run build
+npm run db:init
+npm run start:development</code></pre>
+          </div>
+          <p>Open <code>http://127.0.0.1:4173</code>. The local database defaults to <code>data/northstar.db</code>; migrations live in <code>server/migrations</code> and run automatically at startup.</p>
+          <div class="notice notice-warning">
+            <span aria-hidden="true">!</span>
+            <p>Demo identities and synthetic portfolio data are <strong>off by default</strong>. To run the local-only demo, set <code>DEMO_MODE=true</code> and <code>SEED_DEMO_DATA=true</code> in <code>.env.local</code>. Never use those flags in production &mdash; production startup rejects them.</p>
+          </div>
+
+          <h2 id="entra">Microsoft Entra</h2>
+          <p>Copy <code>.env.example</code> to <code>.env.local</code> and configure:</p>
+          <div class="code-block">
+            <button class="copy-button" type="button" data-copy-target="#entra-vars">Copy</button>
+            <pre><code id="entra-vars">ENTRA_CLIENT_ID
+ENTRA_TENANT_ID
+ENTRA_API_AUDIENCE
+ENTRA_API_SCOPE
+ENTRA_ALLOWED_CLIENT_ID
+ENTRA_REDIRECT_URI</code></pre>
+          </div>
+          <p>Register these application roles:</p>
+          <div class="table-wrap">
+            <table>
+              <thead><tr><th>Role</th><th>Grants a ceiling of</th></tr></thead>
+              <tbody>
+                <tr><td><code>ClientPortal.User</code></td><td>End-user self-service</td></tr>
+                <tr><td><code>ClientPortal.Admin</code></td><td>Client administration</td></tr>
+                <tr><td><code>ClientPortal.Owner</code></td><td>Client ownership</td></tr>
+                <tr><td><code>MSPPortal.Admin</code></td><td>Internal MSP administration</td></tr>
+                <tr><td><code>MSPPortal.Owner</code></td><td>Internal MSP ownership</td></tr>
+              </tbody>
+            </table>
+          </div>
+          <p>The access token must contain the <code>Portal.Access</code> delegated scope and exactly one recognized application role. The role is a ceiling &mdash; see the <a href="security.html#roles">security model</a>.</p>
+
+          <h2 id="provision">Provision an identity</h2>
+          <p>Users are not created just-in-time. Provision the Entra tenant/object pair <em>before</em> first sign-in, or the user will authenticate successfully and reach nothing.</p>
+          <div class="code-block">
+            <button class="copy-button" type="button" data-copy-target="#provision-cmd">Copy</button>
+            <pre><code id="provision-cmd">$env:PORTAL_USER_OID = "entra-object-id"
+$env:PORTAL_USER_EMAIL = "person@example.com"
+$env:PORTAL_USER_NAME = "Person Name"
+$env:PORTAL_USER_ROLE = "client_admin"
+$env:PORTAL_COMPANY_ID = "acme"
+npm run user:provision</code></pre>
+          </div>
+          <p>Supported database roles: <code>client_user</code>, <code>client_admin</code>, <code>client_owner</code>, <code>msp_operator</code>, <code>msp_admin</code>, <code>msp_owner</code>.</p>
+          <p>MSP identities may set <code>PORTAL_PLATFORM_SCOPE=all</code>. Otherwise their clients must be explicitly assigned in <code>msp_company_scopes</code> &mdash; an MSP admin does not implicitly see every client.</p>
+
+          <h2 id="connectwise">ConnectWise synchronization</h2>
+          <p>Northstar uses ConnectWise Platform OAuth 2.0 client credentials with least-privilege <code>platform.companies.read</code> and <code>platform.tickets.read</code> scopes.</p>
+          <p>Configure <code>CONNECTWISE_CLIENT_ID</code> and <code>CONNECTWISE_CLIENT_SECRET</code> together, and select the regional <code>CONNECTWISE_BASE_URL</code> listed in <code>.env.example</code>. Production rejects non-ConnectWise origins.</p>
+          <div class="notice">
+            <span aria-hidden="true">i</span>
+            <p>The client secret and bearer token are never returned to the browser. Imported companies begin in onboarding state and are not automatically published to clients. Tickets are mapped through durable provider identifiers and idempotently upserted into company-scoped records.</p>
+          </div>
+          <p>Inspect or start a run through <code>GET</code> and <code>POST /api/internal/integrations/connectwise/sync</code>.</p>
+
+          <h2 id="verify">Verification</h2>
+          <div class="code-block">
+            <button class="copy-button" type="button" data-copy-target="#verify-cmds">Copy</button>
+            <pre><code id="verify-cmds">npm test
+npm run test:e2e
+npm run smoke
+npm run build
+npm run audit:dependencies
+npm run verify</code></pre>
+          </div>
+          <div class="table-wrap">
+            <table>
+              <thead><tr><th>Command</th><th>What it proves</th></tr></thead>
+              <tbody>
+                <tr><td><code>npm test</code></td><td>Client isolation, company-claim rejection, unknown-user denial, scoped portfolios, role permissions, method handling, denial auditing, membership lifecycle, last-administrator protection, approvals, install profile</td></tr>
+                <tr><td><code>npm run test:e2e</code></td><td>WCAG 2 A/AA rules on sign-in and all three dashboards, skip navigation, heading focus, modal focus trapping, mobile nav, horizontal overflow</td></tr>
+                <tr><td><code>npm run smoke</code></td><td>Real HTTP API on a random port with a temporary database</td></tr>
+                <tr><td><code>npm run startup:production</code></td><td>Synthetic production config; confirms readiness stays blocked until backup evidence exists</td></tr>
+              </tbody>
+            </table>
+          </div>
+
+          <h2 id="production">Going to production</h2>
+          <div class="notice notice-danger">
+            <span aria-hidden="true">!</span>
+            <p><strong>The embedded SQLite store is a single-node pilot path.</strong> Before multi-instance rollout, migrate the same repository contracts to PostgreSQL, add tenant-qualified foreign keys and forced row-level security, run under a non-owner database role, and test RLS with the real deployment role.</p>
+          </div>
+          <p>Production operations include authenticated encrypted SQLite backups, integrity verification, offline-safe restore controls, configurable retention enforcement, database process leases, and health timestamps.</p>
+          <p>Read <a href="https://github.com/ithealthtech/northstar-msp-portal/blob/main/DEPLOYMENT.md">DEPLOYMENT.md</a>, the <a href="https://github.com/ithealthtech/northstar-msp-portal/blob/main/RELEASE.md">release checklist</a>, and the <a href="https://github.com/ithealthtech/northstar-msp-portal/blob/main/docs/OPERATIONS-RUNBOOK.md">operations runbook</a> before handling customer data.</p>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer class="site-footer">
+    <div class="container footer-grid">
+      <div>
+        <a class="brand" href="index.html"><span class="brand-mark" aria-hidden="true">N</span><span>Northstar</span></a>
+        <p class="footer-note">Unified MSP portal gated by Microsoft Entra ID, with default-deny tenant isolation.</p>
+      </div>
+      <div><h3>Learn</h3><a href="security.html">Security model</a><a href="guide.html">Deployment</a><a href="support.html">Support</a></div>
+      <div><h3>Project</h3><a href="https://github.com/ithealthtech/northstar-msp-portal">Repository</a><a href="https://github.com/ithealthtech/northstar-msp-portal/blob/main/CHANGELOG.md">Changelog</a><a href="https://github.com/ithealthtech/northstar-msp-portal/issues">Issues</a></div>
+      <div><h3>Policy</h3><a href="https://github.com/ithealthtech/northstar-msp-portal/blob/main/SECURITY.md">Security policy</a><a href="https://github.com/ithealthtech/northstar-msp-portal/blob/main/CONTRIBUTING.md">Contributing</a><p class="footer-note">&copy; <span data-current-year></span> IT Health Tech LLC</p></div>
+    </div>
+  </footer>
+
+  <div class="sr-only" aria-live="polite" data-live-region></div>
+</body>
+</html>

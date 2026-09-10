@@ -1,0 +1,142 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="Northstar MSP Portal security model: how Entra identity, database membership, role intersection, and named route permissions combine into default-deny tenant isolation.">
+  <meta name="theme-color" content="#0b0a17">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; img-src 'self' data:; style-src 'self'; script-src 'self'; connect-src 'none'; object-src 'none'; base-uri 'self'; form-action 'none'">
+  <title>Security model &middot; Northstar MSP Portal</title>
+  <link rel="stylesheet" href="assets/site.css">
+  <script src="assets/site.js" defer></script>
+</head>
+<body>
+  <a class="skip-link" href="#main">Skip to content</a>
+  <header class="site-header">
+    <div class="nav-shell">
+      <a class="brand" href="index.html" aria-label="Northstar MSP Portal documentation home">
+        <span class="brand-mark" aria-hidden="true">N</span>
+        <span>Northstar</span>
+      </a>
+      <nav class="site-nav" data-site-nav aria-label="Primary navigation">
+        <a href="index.html">Overview</a>
+        <a href="security.html" aria-current="page">Security</a>
+        <a href="guide.html">Deploy</a>
+        <a href="support.html">Support</a>
+        <a href="https://github.com/ithealthtech/northstar-msp-portal">GitHub</a>
+      </nav>
+      <div class="nav-actions">
+        <button class="icon-button" type="button" data-doc-theme-toggle aria-label="Use light documentation theme">&#9728;</button>
+        <button class="menu-button" type="button" data-menu-toggle aria-label="Open navigation" aria-expanded="false">&#9776;</button>
+      </div>
+    </div>
+  </header>
+
+  <main id="main">
+    <section class="page-hero">
+      <div class="container">
+        <p class="eyebrow">Security model</p>
+        <h1>Identity is not authorization.</h1>
+        <p class="hero-copy">Microsoft Entra proves who someone is and supplies a coarse application-role ceiling. It does not, by itself, grant access to a single client record.</p>
+      </div>
+    </section>
+
+    <section class="section">
+      <div class="container docs-layout">
+        <nav class="toc" aria-label="On this page">
+          <h2>On this page</h2>
+          <a href="#chain">The authorization chain</a>
+          <a href="#claims">Why the company claim is a hint</a>
+          <a href="#provisioning">Provisioned, not just-in-time</a>
+          <a href="#roles">Roles</a>
+          <a href="#demo">Demo and preview modes</a>
+          <a href="#responses">API response discipline</a>
+          <a href="#boundary">Known boundary</a>
+        </nav>
+
+        <div class="docs-content">
+          <h2 id="chain">The authorization chain</h2>
+          <p>Every authenticated request runs all seven steps, in order. A failure at any step denies the request and is audited.</p>
+          <ol class="step-list">
+            <li><strong>Validate the access token</strong>Signature, issuer, audience, expiry, tenant, client application, delegated API scope, and a recognized app role.</li>
+            <li><strong>Resolve the user</strong>By provisioned Entra tenant ID and object ID.</li>
+            <li><strong>Require an active database identity</strong>No active record, no access.</li>
+            <li><strong>Resolve scope</strong>An active client membership or an MSP platform assignment.</li>
+            <li><strong>Intersect roles</strong>The Entra app role is intersected with the database role &mdash; the narrower of the two wins.</li>
+            <li><strong>Resolve the target</strong>The allowed company, or the assigned MSP portfolio.</li>
+            <li><strong>Enforce the route permission</strong>The specific named permission that route requires.</li>
+          </ol>
+
+          <h2 id="claims">Why the company claim is only a hint</h2>
+          <p>The <code>company_id</code> claim in a token is treated as a <em>selection hint</em>, never as a source of access. It cannot create a membership or expand tenant reach.</p>
+          <div class="notice notice-success">
+            <span aria-hidden="true">&#10003;</span>
+            <p>A client user who guesses another company's resource ID receives a <strong>not-found</strong> response &mdash; not a forbidden response. The portal does not confirm that the other company's record exists.</p>
+          </div>
+
+          <h2 id="provisioning">Provisioned, not just-in-time</h2>
+          <p>Portal users are deliberately not created from an email address or a company claim on first sign-in. The Entra tenant/object pair must already exist in the database.</p>
+          <p>This is the single most important operational consequence of the model: a valid Entra user in your tenant who has never been provisioned can authenticate and still reach nothing.</p>
+          <div class="notice">
+            <span aria-hidden="true">i</span>
+            <p>No default administrator or password is ever created. Complete first-run setup or provision an Entra identity explicitly. See <a href="guide.html#provision">provisioning</a>.</p>
+          </div>
+
+          <h2 id="roles">Roles</h2>
+          <p>Entra application roles supply the ceiling:</p>
+          <div class="table-wrap">
+            <table>
+              <thead><tr><th>Entra app role</th><th>Purpose</th></tr></thead>
+              <tbody>
+                <tr><td><code>ClientPortal.User</code></td><td>End-user self-service</td></tr>
+                <tr><td><code>ClientPortal.Admin</code></td><td>Client administration</td></tr>
+                <tr><td><code>ClientPortal.Owner</code></td><td>Client ownership</td></tr>
+                <tr><td><code>MSPPortal.Admin</code></td><td>Internal MSP administration</td></tr>
+                <tr><td><code>MSPPortal.Owner</code></td><td>Internal MSP ownership</td></tr>
+              </tbody>
+            </table>
+          </div>
+          <p>The token must carry the <code>Portal.Access</code> delegated scope and one recognized application role. Database roles are <code>client_user</code>, <code>client_admin</code>, <code>client_owner</code>, <code>msp_operator</code>, <code>msp_admin</code>, and <code>msp_owner</code>.</p>
+          <p>MSP identities may use <code>PORTAL_PLATFORM_SCOPE=all</code>; otherwise their clients must be explicitly assigned in <code>msp_company_scopes</code>. An MSP administrator does not implicitly see every client.</p>
+
+          <h2 id="demo">Demo and preview modes</h2>
+          <div class="notice notice-danger">
+            <span aria-hidden="true">!</span>
+            <p><strong>Production startup rejects <code>DEMO_MODE=true</code>.</strong> This is enforced at boot, not by convention.</p>
+          </div>
+          <p>Preview roles are available only under <code>file://</code> or an explicitly enabled, unconfigured local demo. Once Entra is configured, preview buttons and saved preview roles are ignored entirely.</p>
+          <p>When the portal is served from <code>127.0.0.1</code> with local demo mode on, the role buttons use local-only demo identities that resolve through the same session, repository, SQLite, permission, and audit pipeline as real Entra users &mdash; so the demo exercises the real authorization path rather than bypassing it. The demo authorization header is rejected for non-loopback callers and is fully disabled when demo mode is off.</p>
+
+          <h2 id="responses">API response discipline</h2>
+          <ul>
+            <li>Unknown API paths return JSON <code>404</code> responses.</li>
+            <li>Unsupported methods return <code>405</code> with an <code>Allow</code> header.</li>
+            <li>Responses include a request ID, security headers, and no-store caching.</li>
+            <li>Denials are durably audited, tenant-aware, and return generic errors.</li>
+          </ul>
+          <p>New routes are required to default to denied access, enforce the narrowest permission, validate bounded input, return generic errors, and ship with tenant-isolation tests.</p>
+
+          <h2 id="boundary">Known boundary</h2>
+          <p>The included Node SQLite store makes the foundation immediately runnable and enables deterministic isolation tests. It suits local development and a single-node pilot.</p>
+          <p>Before a multi-instance production rollout: migrate the same repository contracts to PostgreSQL, add tenant-qualified foreign keys and forced row-level security, run the application under a non-owner database role, and test RLS using the real deployment role.</p>
+          <p>See <a href="https://github.com/ithealthtech/northstar-msp-portal/blob/main/docs/SECURITY-ARCHITECTURE.md">SECURITY-ARCHITECTURE.md</a> for trust boundaries and deployment requirements, and the <a href="https://github.com/ithealthtech/northstar-msp-portal/blob/main/SECURITY.md">security policy</a> to report a vulnerability.</p>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer class="site-footer">
+    <div class="container footer-grid">
+      <div>
+        <a class="brand" href="index.html"><span class="brand-mark" aria-hidden="true">N</span><span>Northstar</span></a>
+        <p class="footer-note">Unified MSP portal gated by Microsoft Entra ID, with default-deny tenant isolation.</p>
+      </div>
+      <div><h3>Learn</h3><a href="security.html">Security model</a><a href="guide.html">Deployment</a><a href="support.html">Support</a></div>
+      <div><h3>Project</h3><a href="https://github.com/ithealthtech/northstar-msp-portal">Repository</a><a href="https://github.com/ithealthtech/northstar-msp-portal/blob/main/CHANGELOG.md">Changelog</a><a href="https://github.com/ithealthtech/northstar-msp-portal/issues">Issues</a></div>
+      <div><h3>Policy</h3><a href="https://github.com/ithealthtech/northstar-msp-portal/blob/main/SECURITY.md">Security policy</a><a href="https://github.com/ithealthtech/northstar-msp-portal/blob/main/CONTRIBUTING.md">Contributing</a><p class="footer-note">&copy; <span data-current-year></span> IT Health Tech LLC</p></div>
+    </div>
+  </footer>
+
+  <div class="sr-only" aria-live="polite" data-live-region></div>
+</body>
+</html>
