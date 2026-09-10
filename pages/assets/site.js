@@ -50,8 +50,7 @@
         const helper = document.createElement('textarea');
         helper.value = text;
         helper.setAttribute('readonly', '');
-        helper.style.position = 'fixed';
-        helper.style.opacity = '0';
+        helper.className = 'copy-helper';
         document.body.appendChild(helper);
         helper.select();
         document.execCommand('copy');
@@ -81,7 +80,7 @@
         item.hidden = !match;
         if (match) visible += 1;
       });
-      if (empty) empty.style.display = visible ? 'none' : 'block';
+      if (empty) empty.classList.toggle('is-visible', !visible);
     });
   });
 

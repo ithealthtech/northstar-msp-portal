@@ -1567,3 +1567,15 @@ figure.panel figcaption {
   font-size: 0.92rem;
   line-height: 1.6;
 }
+
+/* Class-based visibility, so no inline style is needed under a strict CSP ---- */
+
+.empty-state.is-visible {
+  display: block;
+}
+
+.copy-helper {
+  position: fixed;
+  opacity: 0;
+  pointer-events: none;
+}
