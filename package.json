@@ -53,7 +53,7 @@
     "package:install": "npm run build && node scripts/create-install-package.cjs"
   },
   "dependencies": {
-    "jose": "6.2.4"
+    "jose": "6.2.6"
   },
   "devDependencies": {
     "@axe-core/playwright": "4.12.1",
